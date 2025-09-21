@@ -5,6 +5,7 @@ let package = Package(
     name: "tallybar",
     platforms: [.macOS(.v14)],
     targets: [
-        .executableTarget(name: "TallyBar")
+        .target(name: "TallyCore"),
+        .executableTarget(name: "TallyBar", dependencies: ["TallyCore"])
     ]
 )
