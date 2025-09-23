@@ -1,13 +1,13 @@
 import Foundation
 
-public struct Entry: Identifiable {
-    public let id = UUID()
+public struct Entry: Identifiable, Codable {
+    public var id = UUID()
     public var client: String
     public var start: Date
     public var end: Date
 }
 
-public struct TimeLog {
+public struct TimeLog: Codable {
     public var clients = ["Client A", "Client B"]
     public var entries: [Entry] = []
     public var current: String?
@@ -26,5 +26,20 @@ public struct TimeLog {
             current = client
             startedAt = now
         }
+    }
+
+    static var fileURL: URL {
+        let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+        return dir.appendingPathComponent("tally.json")
+    }
+
+    public static func load() -> TimeLog {
+        guard let data = try? Data(contentsOf: fileURL) else { return TimeLog() }
+        return (try? JSONDecoder().decode(TimeLog.self, from: data)) ?? TimeLog()
+    }
+
+    public func save() {
+        let data = try? JSONEncoder().encode(self)
+        try? data?.write(to: TimeLog.fileURL)
     }
 }

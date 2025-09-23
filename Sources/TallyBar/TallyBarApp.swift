@@ -2,10 +2,11 @@ import SwiftUI
 import TallyCore
 
 class Tracker: ObservableObject {
-    @Published var log = TimeLog()
+    @Published var log = TimeLog.load()
 
     func toggle(_ client: String) {
         log.toggle(client)
+        log.save()
     }
 }
 
