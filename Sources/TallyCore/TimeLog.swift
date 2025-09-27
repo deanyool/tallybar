@@ -28,6 +28,13 @@ public struct TimeLog: Codable {
         }
     }
 
+    /// seconds tracked today, only counts finished entries
+    public var todayTotal: TimeInterval {
+        entries
+            .filter { Calendar.current.isDateInToday($0.start) }
+            .reduce(0) { $0 + $1.end.timeIntervalSince($1.start) }
+    }
+
     static var fileURL: URL {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
         return dir.appendingPathComponent("tally.json")

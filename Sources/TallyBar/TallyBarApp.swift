@@ -22,6 +22,8 @@ struct TallyBarApp: App {
                 }
             }
             Divider()
+            Text("Today: \(Int(tracker.log.todayTotal / 60)) min")
+            Divider()
             Button("Quit") { NSApplication.shared.terminate(nil) }
         }
     }
