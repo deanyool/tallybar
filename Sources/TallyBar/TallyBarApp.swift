@@ -22,7 +22,7 @@ struct TallyBarApp: App {
                 }
             }
             Divider()
-            Text("Today: \(Int(tracker.log.todayTotal / 60)) min")
+            Text("Today: \(Int(tracker.log.todayTotal / 60)) min, $\(String(format: "%.2f", tracker.log.todayEarned))")
             Divider()
             Button("Quit") { NSApplication.shared.terminate(nil) }
         }
