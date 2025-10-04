@@ -9,7 +9,7 @@ public struct Entry: Identifiable, Codable {
 
 public struct TimeLog: Codable {
     public var clients = ["Client A", "Client B"]
-    public var rates: [String: Double] = ["Client A": 100, "Client B": 85]
+    public var rates: [String: Money] = ["Client A": Money(100), "Client B": Money(85)]
     public var entries: [Entry] = []
     public var current: String?
     public var startedAt: Date?
@@ -36,10 +36,13 @@ public struct TimeLog: Codable {
             .reduce(0) { $0 + $1.end.timeIntervalSince($1.start) }
     }
 
-    public var todayEarned: Double {
+    public var todayEarned: Money {
         entries
             .filter { Calendar.current.isDateInToday($0.start) }
-            .reduce(0) { $0 + $1.end.timeIntervalSince($1.start) / 3600 * (rates[$1.client] ?? 0) }
+            .reduce(Money.zero("USD")) { total, entry in
+                let seconds = Int(entry.end.timeIntervalSince(entry.start))
+                return total + (rates[entry.client] ?? .zero("USD")).earned(seconds: seconds)
+            }
     }
 
     static var fileURL: URL {
