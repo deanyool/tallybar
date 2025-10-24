@@ -12,5 +12,6 @@ let package = Package(
         .target(name: "TallyCore"),
         .target(name: "TallyUI", dependencies: ["TallyCore"]),
         .executableTarget(name: "TallyBar", dependencies: ["TallyCore", "TallyUI"]),
+        .testTarget(name: "TallyCoreTests", dependencies: ["TallyCore"]),
     ]
 )
