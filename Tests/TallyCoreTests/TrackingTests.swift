@@ -50,6 +50,16 @@ struct TrackingTests {
         #expect(ledger.entries.isEmpty)
     }
 
+    @Test func misclicksAreDropped() {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.settings.minimumEntrySeconds = 10
+        ledger.start(clientID: client.id, at: t0)
+        #expect(ledger.stop(at: t0.addingTimeInterval(9)) == nil)
+        #expect(ledger.entries.isEmpty)
+        ledger.start(clientID: client.id, at: t0)
+        #expect(ledger.stop(at: t0.addingTimeInterval(10)) != nil)
+    }
+
     @Test func timesAreWholeSeconds() {
         var (ledger, client) = Fixtures.ledger()
         ledger.start(clientID: client.id, at: t0.addingTimeInterval(0.7))

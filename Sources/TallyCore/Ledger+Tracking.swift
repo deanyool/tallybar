@@ -44,7 +44,7 @@ public extension Ledger {
     @discardableResult
     private mutating func record(_ session: RunningSession, until end: Date) -> TimeEntry? {
         let entry = TimeEntry(clientID: session.clientID, start: session.start, end: end, note: session.note)
-        guard entry.seconds > settings.minimumEntrySeconds else { return nil }
+        guard entry.seconds >= settings.minimumEntrySeconds, entry.seconds > 0 else { return nil }
         entries.append(entry)
         return entry
     }
