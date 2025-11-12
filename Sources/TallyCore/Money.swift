@@ -26,8 +26,9 @@ public struct Money: Hashable, Codable, Sendable {
     }
 
     /// What `seconds` of work earns at this hourly rate, rounded to the minor unit.
+    /// Multiplies before dividing so a rate like 100/hour for 1200s stays exact.
     public func earned(seconds: Int) -> Money {
-        Money(amount / 3600 * Decimal(seconds), currency: currency).rounded
+        Money(amount * Decimal(seconds) / 3600, currency: currency).rounded
     }
 
     /// A display string such as "$1,250.00".
