@@ -8,11 +8,12 @@ public extension Ledger {
         return entries + [live]
     }
 
-    /// Seconds tracked inside `interval`.
+    /// Seconds tracked inside `interval`, counting only the part of each entry that
+    /// falls within it. A session that crosses midnight counts toward both days.
     func seconds(in interval: DateInterval, clientID: UUID? = nil, at now: Date) -> Int {
         spans(at: now).reduce(0) { total, span in
             if let clientID, span.clientID != clientID { return total }
-            return interval.contains(span.start) ? total + span.seconds : total
+            return total + (span.clipped(to: interval)?.seconds ?? 0)
         }
     }
 
