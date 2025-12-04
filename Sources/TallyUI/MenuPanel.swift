@@ -116,6 +116,10 @@ struct SummaryHeader: View {
 
     var body: some View {
         HStack(spacing: 14) {
+            if model.weeklyGoal.isEnabled {
+                GoalRing(goal: model.weeklyGoal)
+                    .frame(width: 52, height: 52)
+            }
             VStack(alignment: .leading, spacing: 3) {
                 Text("This week")
                     .font(.caption)
@@ -124,6 +128,11 @@ struct SummaryHeader: View {
                     Text(DurationFormat.clock(model.weekSeconds))
                         .font(.system(size: 22, weight: .semibold, design: .rounded))
                         .monospacedDigit()
+                    if model.weeklyGoal.isEnabled {
+                        Text("of \(model.ledger.settings.weeklyGoalHours.formatted())h")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 Text(todayLine)
                     .font(.caption)

@@ -110,6 +110,10 @@ public final class AppModel: ObservableObject {
         ledger.earnings(in: calendar.dayInterval(containing: now), at: now)
     }
 
+    public var weeklyGoal: WeeklyGoal {
+        ledger.weeklyGoal(at: now, calendar: calendar)
+    }
+
     public var runningClient: Client? {
         ledger.running.flatMap { ledger.client(id: $0.clientID) }
     }
@@ -124,4 +128,18 @@ public final class AppModel: ObservableObject {
         amounts.map(text(for:)).joined(separator: " + ")
     }
 
+}
+
+public extension AppModel {
+    /// A two-way binding to one setting, saved on every change.
+    func binding<Value: Sendable>(_ path: WritableKeyPath<TallySettings, Value> & Sendable) -> Binding<Value> {
+        Binding(
+            get: { [weak self] in
+                MainActor.assumeIsolated { self?.ledger.settings[keyPath: path] } ?? TallySettings()[keyPath: path]
+            },
+            set: { [weak self] value in
+                MainActor.assumeIsolated { self?.update { $0.settings[keyPath: path] = value } }
+            }
+        )
+    }
 }

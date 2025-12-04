@@ -71,3 +71,41 @@ struct TotalsTests {
         #expect(entry.clipped(to: later) == nil)
     }
 }
+
+@Suite("Weekly goal")
+struct WeeklyGoalTests {
+    @Test func tracksProgress() {
+        let goal = WeeklyGoal(trackedSeconds: 15 * 3600, goalHours: 30)
+        #expect(goal.fraction == 0.5)
+        #expect(goal.percent == 50)
+        #expect(goal.remainingSeconds == 15 * 3600)
+        #expect(!goal.isMet)
+    }
+
+    @Test func ringStopsAtFullButPercentKeepsCounting() {
+        let goal = WeeklyGoal(trackedSeconds: 33 * 3600, goalHours: 30)
+        #expect(goal.fraction == 1)
+        #expect(goal.percent == 110)
+        #expect(goal.remainingSeconds == 0)
+        #expect(goal.isMet)
+    }
+
+    @Test func ledgerGoalUsesTheCurrentWeek() {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.settings.weeklyGoalHours = 10
+        ledger.entries = [
+            TimeEntry(
+                clientID: client.id,
+                start: Fixtures.at("2025-10-13T09:00:00-04:00"),
+                end: Fixtures.at("2025-10-13T14:00:00-04:00")
+            ),
+            TimeEntry(
+                clientID: client.id,
+                start: Fixtures.at("2025-10-06T09:00:00-04:00"),
+                end: Fixtures.at("2025-10-06T14:00:00-04:00")
+            )
+        ]
+        let goal = ledger.weeklyGoal(at: Fixtures.at("2025-10-15T09:00:00-04:00"), calendar: Fixtures.calendar())
+        #expect(goal.percent == 50)
+    }
+}
