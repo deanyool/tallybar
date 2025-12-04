@@ -47,6 +47,14 @@ struct TotalsTests {
         #expect(ledger.seconds(in: calendar.dayInterval(containing: now), clientID: other.id, at: now) == 1800)
     }
 
+    @Test func fallBackDayTotalIncludesTheExtraHour() {
+        var (ledger, client) = Fixtures.ledger()
+        add(&ledger, client, "2025-11-02T00:00:00-04:00", "2025-11-03T00:00:00-05:00")
+        let now = Fixtures.at("2025-11-03T12:00:00-05:00")
+        let day = calendar.dayInterval(containing: Fixtures.at("2025-11-02T12:00:00-05:00"))
+        #expect(ledger.seconds(in: day, at: now) == 25 * 3600)
+    }
+
     @Test func noTimeMeansNoEarningsRows() {
         let (ledger, _) = Fixtures.ledger()
         let now = Fixtures.at("2025-10-15T12:00:00-04:00")
