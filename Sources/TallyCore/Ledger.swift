@@ -36,7 +36,7 @@ public struct Ledger: Codable, Equatable, Sendable {
     public func calendar(timeZone: TimeZone = .current) -> Calendar {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = timeZone
-        calendar.firstWeekday = 2
+        calendar.firstWeekday = settings.firstWeekday
         return calendar
     }
 }

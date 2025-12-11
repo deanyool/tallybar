@@ -8,6 +8,7 @@ import TallyCore
 @MainActor
 public final class AppController: ObservableObject {
     public let model: AppModel
+    public let windows = WindowManager()
 
     private var timer: Timer?
     private var subscriptions: Set<AnyCancellable> = []
@@ -26,8 +27,13 @@ public final class AppController: ObservableObject {
 
     public var menuActions: MenuActions {
         MenuActions(
+            openSettings: { [weak self] in self?.showSettings() },
             quit: { NSApp.terminate(nil) }
         )
+    }
+
+    private func showSettings() {
+        windows.show(id: "settings", title: "TallyBar Settings") { SettingsView(model: model) }
     }
 
     private func startTicking() {

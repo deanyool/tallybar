@@ -57,10 +57,11 @@ public struct MenuPanel: View {
             VStack(spacing: 8) {
                 Text("No clients yet")
                     .font(.headline)
-                Text("Clients come from the data file for now.")
+                Text("Add a client and an hourly rate to start tracking.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
+                Button("Add a Client", action: actions.openSettings)
             }
             .padding(20)
             .frame(maxWidth: .infinity)
@@ -83,6 +84,7 @@ public struct MenuPanel: View {
     private var footer: some View {
         HStack(spacing: 2) {
             Spacer()
+            FooterButton(title: "Settings", symbol: "gearshape", action: actions.openSettings)
             FooterButton(title: "Quit", symbol: "power", action: actions.quit)
         }
         .padding(.horizontal, 8)
