@@ -16,7 +16,8 @@ public struct WeeklyGoal: Equatable, Sendable {
 
     /// 0 to 1 for the ring. It stops at 1, a full ring is the reward.
     public var fraction: Double {
-        min(1, Double(trackedSeconds) / (goalHours * 3600))
+        guard isEnabled else { return 0 }
+        return min(1, Double(trackedSeconds) / (goalHours * 3600))
     }
 
     public var isMet: Bool {
@@ -30,7 +31,8 @@ public struct WeeklyGoal: Equatable, Sendable {
 
     /// Whole-number percent, not capped, so the label can say "112%".
     public var percent: Int {
-        Int((Double(trackedSeconds) / (goalHours * 3600) * 100).rounded())
+        guard isEnabled else { return 0 }
+        return Int((Double(trackedSeconds) / (goalHours * 3600) * 100).rounded())
     }
 }
 

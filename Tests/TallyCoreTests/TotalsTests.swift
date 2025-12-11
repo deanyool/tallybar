@@ -90,6 +90,14 @@ struct WeeklyGoalTests {
         #expect(goal.isMet)
     }
 
+    @Test func zeroGoalIsDisabledNotADivisionByZero() {
+        let goal = WeeklyGoal(trackedSeconds: 3600, goalHours: 0)
+        #expect(!goal.isEnabled)
+        #expect(goal.fraction == 0)
+        #expect(goal.percent == 0)
+        #expect(!goal.isMet)
+    }
+
     @Test func ledgerGoalUsesTheCurrentWeek() {
         var (ledger, client) = Fixtures.ledger()
         ledger.settings.weeklyGoalHours = 10
