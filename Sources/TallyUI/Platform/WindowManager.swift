@@ -13,6 +13,7 @@ public final class WindowManager {
     public func show<Content: View>(id: String, title: String, @ViewBuilder content: () -> Content) {
         let window = windows[id] ?? makeWindow(title: title, content: content())
         windows[id] = window
+        NSApp.activate(ignoringOtherApps: true)
         window.makeKeyAndOrderFront(nil)
     }
 
