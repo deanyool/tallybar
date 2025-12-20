@@ -73,6 +73,18 @@ public struct ClientsSettingsView: View {
                 Button("Add Client", action: add)
                     .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty)
             }
+            let archived = model.ledger.clients.filter(\.isArchived)
+            if !archived.isEmpty {
+                Section("Archived") {
+                    ForEach(archived) { client in
+                        LabeledContent(client.name) {
+                            Button("Restore") {
+                                model.update { $0.unarchiveClient(id: client.id) }
+                            }
+                        }
+                    }
+                }
+            }
         }
         .formStyle(.grouped)
     }
@@ -94,6 +106,9 @@ private struct ClientEditorRow: View {
             TextField("Hourly rate", value: amountBinding, format: .number)
             TextField("Billing address", text: field(\.billingAddress), axis: .vertical)
                 .lineLimit(2...4)
+            Button("Archive") {
+                model.update { $0.archiveClient(id: client.id, at: Date()) }
+            }
         } label: {
             HStack {
                 ClientDot(client: client)
