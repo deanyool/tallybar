@@ -4,6 +4,19 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] - 2025-12-20
+
+### Added
+
+- Weekly total and goal ring.
+- Settings window with goal, week start and client management.
+- Clients can be archived.
+
+### Fixed
+
+- Sessions that cross midnight now count toward the right days.
+- Days are measured with the calendar, so 23 and 25 hour days add up correctly.
+
 ## [0.1.0] - 2025-11-02
 
 ### Added
