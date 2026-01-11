@@ -51,3 +51,63 @@ struct TimesheetTests {
         #expect(days[0].rows.count == 1)
     }
 }
+
+@Suite("Editing entries")
+struct EntryEditingTests {
+    private let nine = Fixtures.at("2025-10-15T09:00:00-04:00")
+    private let ten = Fixtures.at("2025-10-15T10:00:00-04:00")
+    private let eleven = Fixtures.at("2025-10-15T11:00:00-04:00")
+
+    @Test func addsAManualEntry() throws {
+        var (ledger, client) = Fixtures.ledger()
+        try ledger.save(TimeEntry(clientID: client.id, start: nine, end: ten))
+        #expect(ledger.entries.count == 1)
+    }
+
+    @Test func editReplacesTheEntry() throws {
+        var (ledger, client) = Fixtures.ledger()
+        var entry = TimeEntry(clientID: client.id, start: nine, end: ten)
+        try ledger.save(entry)
+        entry.end = eleven
+        try ledger.save(entry)
+        #expect(ledger.entries.count == 1)
+        #expect(ledger.entries[0].end == eleven)
+    }
+
+    @Test func refusesBackwardEntries() {
+        var (ledger, client) = Fixtures.ledger()
+        #expect(throws: EntryProblem.endNotAfterStart) {
+            try ledger.save(TimeEntry(clientID: client.id, start: ten, end: nine))
+        }
+    }
+
+    @Test func refusesUnknownClients() {
+        var (ledger, _) = Fixtures.ledger()
+        #expect(throws: EntryProblem.unknownClient) {
+            try ledger.save(TimeEntry(clientID: UUID(), start: nine, end: ten))
+        }
+    }
+
+    @Test func touchingEntriesAreNotAnOverlap() throws {
+        var (ledger, client) = Fixtures.ledger()
+        try ledger.save(TimeEntry(clientID: client.id, start: nine, end: ten))
+        try ledger.save(TimeEntry(clientID: client.id, start: ten, end: eleven))
+        #expect(ledger.entries.count == 2)
+    }
+
+    @Test func deleteRemovesTheEntry() throws {
+        var (ledger, client) = Fixtures.ledger()
+        let entry = TimeEntry(clientID: client.id, start: nine, end: ten)
+        try ledger.save(entry)
+        try ledger.deleteEntry(id: entry.id)
+        #expect(ledger.entries.isEmpty)
+    }
+
+    @Test func newestFirstSorts() throws {
+        var (ledger, client) = Fixtures.ledger()
+        try ledger.save(TimeEntry(clientID: client.id, start: nine, end: ten))
+        try ledger.save(TimeEntry(clientID: client.id, start: ten, end: eleven))
+        #expect(ledger.entriesNewestFirst.first?.start == ten)
+    }
+
+}
