@@ -28,6 +28,7 @@ public final class AppController: ObservableObject {
     public var menuActions: MenuActions {
         MenuActions(
             openTimesheet: { [weak self] in self?.showTimesheet() },
+            openExport: { [weak self] in self?.showExport() },
             openSettings: { [weak self] in self?.showSettings() },
             quit: { NSApp.terminate(nil) }
         )
@@ -35,6 +36,10 @@ public final class AppController: ObservableObject {
 
     private func showTimesheet() {
         windows.show(id: "timesheet", title: "Timesheet") { TimesheetView(model: model) }
+    }
+
+    private func showExport() {
+        windows.show(id: "export", title: "Export CSV") { ExportView(model: model) }
     }
 
     private func showSettings() {

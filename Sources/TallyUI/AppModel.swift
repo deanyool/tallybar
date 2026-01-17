@@ -128,6 +128,12 @@ public final class AppModel: ObservableObject {
         amounts.map(text(for:)).joined(separator: " + ")
     }
 
+    // MARK: Output
+
+    public func saveCSV(in interval: DateInterval, clientID: UUID?, options: CSVOptions, to url: URL) throws {
+        let text = ledger.csv(in: interval, clientID: clientID, options: options, calendar: calendar)
+        try Data(text.utf8).write(to: url, options: .atomic)
+    }
 }
 
 public extension AppModel {
