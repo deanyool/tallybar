@@ -127,3 +127,57 @@ struct TrackingTests {
         #expect(ledger.addClient(name: "One", hourlyRate: 10).hourlyRate.currency == "CAD")
     }
 }
+
+@Suite("Away periods")
+struct AwayDecisionTests {
+    private let start = Fixtures.at("2025-10-15T09:00:00-04:00")
+
+    private func running() -> (Ledger, Client) {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.start(clientID: client.id, note: "Report", at: start)
+        return (ledger, client)
+    }
+
+    private var away: AwayPeriod {
+        AwayPeriod(start: start.addingTimeInterval(3600), end: start.addingTimeInterval(5000))
+    }
+
+    @Test func keepChangesNothing() {
+        var (ledger, _) = running()
+        let before = ledger
+        ledger.resolve(away, decision: .keep, at: away.end)
+        #expect(ledger == before)
+    }
+
+    @Test func discardClosesAtDepartureAndCarriesOn() {
+        var (ledger, client) = running()
+        ledger.resolve(away, decision: .discard, at: away.end)
+        #expect(ledger.entries.count == 1)
+        #expect(ledger.entries[0].seconds == 3600)
+        #expect(ledger.running?.start == away.end)
+        #expect(ledger.running?.clientID == client.id)
+        #expect(ledger.running?.note == "Report")
+    }
+
+    @Test func discardAndStopClosesAtDeparture() {
+        var (ledger, _) = running()
+        ledger.resolve(away, decision: .discardAndStop, at: away.end)
+        #expect(ledger.entries.count == 1)
+        #expect(ledger.entries[0].end == away.start)
+        #expect(ledger.running == nil)
+    }
+
+    @Test func awayStartingBeforeTheSessionDiscardsEverything() {
+        var (ledger, _) = running()
+        let early = AwayPeriod(start: start.addingTimeInterval(-500), end: start.addingTimeInterval(900))
+        ledger.resolve(early, decision: .discardAndStop, at: early.end)
+        #expect(ledger.entries.isEmpty)
+    }
+
+    @Test func nothingRunningIsHarmless() {
+        var (ledger, _) = Fixtures.ledger()
+        ledger.resolve(away, decision: .discard, at: away.end)
+        #expect(ledger.running == nil)
+    }
+
+}

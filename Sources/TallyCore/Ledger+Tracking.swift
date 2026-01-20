@@ -34,6 +34,17 @@ public extension Ledger {
         running?.note = note
     }
 
+    /// Applies the person's answer to "you were away".
+    mutating func resolve(_ away: AwayPeriod, decision: AwayDecision, at now: Date) {
+        guard decision != .keep, let session = running else { return }
+        let leftAt = max(away.start.wholeSecond, session.start)
+        running = nil
+        record(session, until: leftAt)
+        if decision == .discard {
+            running = RunningSession(clientID: session.clientID, start: now.wholeSecond, note: session.note)
+        }
+    }
+
     private var resumeTarget: UUID? {
         if let last = lastClientID, client(id: last)?.isArchived == false {
             return last

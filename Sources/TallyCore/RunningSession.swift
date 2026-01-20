@@ -18,3 +18,30 @@ public struct RunningSession: Hashable, Codable, Sendable {
         max(0, Int(now.timeIntervalSince(start).rounded(.down)))
     }
 }
+
+/// A stretch of a running session when nobody was at the machine.
+public struct AwayPeriod: Hashable, Sendable, Identifiable {
+    public var start: Date
+    public var end: Date
+
+    public init(start: Date, end: Date) {
+        self.start = start
+        self.end = end
+    }
+
+    public var id: Date { start }
+
+    public var seconds: Int {
+        max(0, Int(end.timeIntervalSince(start).rounded()))
+    }
+}
+
+/// What to do with an away period once the person is back.
+public enum AwayDecision: Sendable {
+    /// Count the time. Nothing changes.
+    case keep
+    /// Close the session at the moment they left and carry on from now.
+    case discard
+    /// Close the session at the moment they left and stop.
+    case discardAndStop
+}
