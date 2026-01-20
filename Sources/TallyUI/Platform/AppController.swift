@@ -63,14 +63,39 @@ public final class AppController: ObservableObject {
     }
 
     private func tick() {
-        model.tick(now: Date())
+        model.tick(now: Date(), idleSeconds: SystemIdle.seconds)
     }
 
     private func observeModel() {
+        model.$pendingAway
+            .removeDuplicates()
+            .sink { [weak self] away in self?.showAwayPrompt(away) }
+            .store(in: &subscriptions)
+
         model.$problem
             .compactMap { $0 }
             .sink { [weak self] message in self?.showProblem(message) }
             .store(in: &subscriptions)
+    }
+
+    private func showAwayPrompt(_ away: AwayPeriod?) {
+        guard let away else {
+            windows.close(id: "away")
+            return
+        }
+        // Deferred because this can fire during launch, before the app is ready for windows.
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.model.pendingAway == away else { return }
+            self.windows.showPanel(id: "away", title: "TallyBar") {
+                IdlePromptView(
+                    away: away,
+                    clientName: self.model.runningClient?.name ?? "a client",
+                    timeZone: self.model.timeZone
+                ) { [weak self] decision in
+                    self?.model.answerAway(decision)
+                }
+            }
+        }
     }
 
     private func showProblem(_ message: String) {

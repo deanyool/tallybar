@@ -17,6 +17,16 @@ public final class WindowManager {
         window.makeKeyAndOrderFront(nil)
     }
 
+    /// A small floating panel that stays above other apps, for the idle question.
+    public func showPanel<Content: View>(id: String, title: String, @ViewBuilder content: () -> Content) {
+        let window = makeWindow(title: title, content: content())
+        window.level = .floating
+        window.styleMask.remove(.closable)
+        windows[id] = window
+        NSApp.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+    }
+
     public func close(id: String) {
         windows[id]?.close()
         windows[id] = nil

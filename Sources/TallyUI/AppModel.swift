@@ -9,11 +9,14 @@ import TallyCore
 public final class AppModel: ObservableObject {
     @Published public private(set) var ledger: Ledger
     @Published public private(set) var now: Date
+    /// Set when the person came back from being away and has not answered yet.
+    @Published public private(set) var pendingAway: AwayPeriod?
     /// The latest problem worth showing, such as a failed save.
     @Published public var problem: String?
 
     public let timeZone: TimeZone
     private let store: LedgerStore?
+    private var idleMonitor: IdleMonitor
 
     /// - Parameter store: where to save. Nil keeps everything in memory, used for the
     ///   screenshots and for a data file this version must not touch.
@@ -22,6 +25,7 @@ public final class AppModel: ObservableObject {
         self.store = store
         self.now = now
         self.timeZone = timeZone
+        idleMonitor = IdleMonitor(threshold: TimeInterval(ledger.settings.idleThresholdMinutes * 60))
     }
 
     /// Loads the ledger for a real launch and surfaces anything that went wrong.
@@ -60,8 +64,14 @@ public final class AppModel: ObservableObject {
 
     // MARK: Ticking
 
-    public func tick(now: Date) {
+    /// Called on a timer with the system's seconds-since-last-input.
+    public func tick(now: Date, idleSeconds: TimeInterval) {
         self.now = now
+        idleMonitor.threshold = TimeInterval(ledger.settings.idleThresholdMinutes * 60)
+        let isTracking = ledger.running != nil && pendingAway == nil
+        if let away = idleMonitor.sample(now: now, idleSeconds: idleSeconds, isTracking: isTracking) {
+            pendingAway = away
+        }
     }
 
     // MARK: Tracking
@@ -86,10 +96,18 @@ public final class AppModel: ObservableObject {
 
     private func noteManualAction(at now: Date) {
         self.now = now
+        idleMonitor.reset()
     }
 
     public func setRunningNote(_ note: String) {
         update { $0.setRunningNote(note) }
+    }
+
+    public func answerAway(_ decision: AwayDecision, at now: Date = Date()) {
+        guard let away = pendingAway else { return }
+        pendingAway = nil
+        idleMonitor.reset()
+        update { $0.resolve(away, decision: decision, at: now) }
     }
 
     // MARK: Reading

@@ -39,6 +39,10 @@ public struct GeneralSettingsView: View {
                         Text("hours")
                     }
                 }
+                Picker("Ask when idle for", selection: model.binding(\.idleThresholdMinutes)) {
+                    Text("Never").tag(0)
+                    ForEach([2, 5, 10, 15, 30], id: \.self) { Text("\($0) minutes").tag($0) }
+                }
                 Picker("Week starts on", selection: model.binding(\.firstWeekday)) {
                     Text("Sunday").tag(1)
                     Text("Monday").tag(2)
