@@ -180,4 +180,23 @@ struct AwayDecisionTests {
         #expect(ledger.running == nil)
     }
 
+    @Test func relaunchAfterACrashReportsTheGap() {
+        var (ledger, _) = running()
+        ledger.lastHeartbeat = start.addingTimeInterval(120)
+        let now = start.addingTimeInterval(4000)
+        #expect(ledger.awayAfterRelaunch(at: now, threshold: 300)
+            == AwayPeriod(start: start.addingTimeInterval(120), end: now))
+    }
+
+    @Test func quickRelaunchReportsNothing() {
+        var (ledger, _) = running()
+        ledger.lastHeartbeat = start.addingTimeInterval(120)
+        #expect(ledger.awayAfterRelaunch(at: start.addingTimeInterval(200), threshold: 300) == nil)
+    }
+
+    @Test func relaunchWithIdleDetectionOffReportsNothing() {
+        var (ledger, _) = running()
+        ledger.lastHeartbeat = start
+        #expect(ledger.awayAfterRelaunch(at: start.addingTimeInterval(9000), threshold: 0) == nil)
+    }
 }

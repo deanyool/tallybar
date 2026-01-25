@@ -9,6 +9,8 @@ public struct Ledger: Codable, Equatable, Sendable {
     public var settings: TallySettings
     /// Remembered so the global hotkey can restart the last client with no UI at all.
     public var lastClientID: UUID?
+    /// Last moment the app knew it was alive during a session, for crash and power-off recovery.
+    public var lastHeartbeat: Date?
 
     public init(
         clients: [Client] = [],
@@ -21,6 +23,7 @@ public struct Ledger: Codable, Equatable, Sendable {
         self.running = running
         self.settings = settings
         self.lastClientID = nil
+        self.lastHeartbeat = nil
     }
 
     public func client(id: UUID) -> Client? {

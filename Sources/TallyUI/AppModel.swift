@@ -18,6 +18,9 @@ public final class AppModel: ObservableObject {
     private let store: LedgerStore?
     private var idleMonitor: IdleMonitor
 
+    /// How often a running session records that it is still alive.
+    static let heartbeatInterval: TimeInterval = 60
+
     /// - Parameter store: where to save. Nil keeps everything in memory, used for the
     ///   screenshots and for a data file this version must not touch.
     public init(ledger: Ledger, store: LedgerStore?, now: Date, timeZone: TimeZone = .current) {
@@ -32,6 +35,7 @@ public final class AppModel: ObservableObject {
     public static func launch(store: LedgerStore, now: Date = Date()) -> AppModel {
         do {
             let model = AppModel(ledger: try store.load(), store: store, now: now)
+            model.checkForMissedTime()
             return model
         } catch {
             let model = AppModel(ledger: Ledger(), store: nil, now: now)
@@ -72,6 +76,19 @@ public final class AppModel: ObservableObject {
         if let away = idleMonitor.sample(now: now, idleSeconds: idleSeconds, isTracking: isTracking) {
             pendingAway = away
         }
+        beatHeart(at: now)
+    }
+
+    private func beatHeart(at now: Date) {
+        guard ledger.running != nil, !idleMonitor.isAway, pendingAway == nil else { return }
+        let last = ledger.lastHeartbeat ?? .distantPast
+        guard now.timeIntervalSince(last) >= AppModel.heartbeatInterval else { return }
+        update { $0.lastHeartbeat = now.wholeSecond }
+    }
+
+    private func checkForMissedTime() {
+        let threshold = TimeInterval(ledger.settings.idleThresholdMinutes * 60)
+        pendingAway = ledger.awayAfterRelaunch(at: now, threshold: threshold)
     }
 
     // MARK: Tracking
