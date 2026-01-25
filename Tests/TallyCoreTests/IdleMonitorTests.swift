@@ -61,6 +61,23 @@ struct IdleMonitorTests {
         #expect(!monitor.isAway)
     }
 
+    @Test func sleepShowsUpAsAGapBetweenSamples() {
+        // The Mac slept for an hour. The input clock restarted on wake.
+        var monitor = IdleMonitor(threshold: 300)
+        _ = monitor.sample(now: time(0), idleSeconds: 1, isTracking: true)
+        let away = monitor.sample(now: time(3600), idleSeconds: 1, isTracking: true)
+        #expect(away == AwayPeriod(start: time(0), end: time(3599)))
+    }
+
+    @Test func wakingWithoutTouchingAnythingWaitsForInput() {
+        var monitor = IdleMonitor(threshold: 300)
+        _ = monitor.sample(now: time(0), idleSeconds: 1, isTracking: true)
+        #expect(monitor.sample(now: time(3600), idleSeconds: 3000, isTracking: true) == nil)
+        #expect(monitor.isAway)
+        let away = monitor.sample(now: time(3700), idleSeconds: 1, isTracking: true)
+        #expect(away?.start == time(0))
+    }
+
     @Test func aTimerHiccupBelowTheThresholdIsNotAway() {
         var monitor = IdleMonitor(threshold: 300)
         _ = monitor.sample(now: time(0), idleSeconds: 1, isTracking: true)

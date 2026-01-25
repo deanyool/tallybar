@@ -8,6 +8,7 @@ public struct IdleMonitor: Sendable {
     public var threshold: TimeInterval
 
     private var awaySince: Date?
+    private var lastSample: Date?
 
     public init(threshold: TimeInterval) {
         self.threshold = threshold
@@ -20,9 +21,15 @@ public struct IdleMonitor: Sendable {
 
     /// Feeds one sample. Returns the away period at the moment the person returns.
     public mutating func sample(now: Date, idleSeconds: TimeInterval, isTracking: Bool) -> AwayPeriod? {
+        defer { lastSample = now }
         guard isTracking, threshold > 0 else {
             awaySince = nil
             return nil
+        }
+        // A gap between samples means the Mac slept or the app was suspended. The input
+        // clock can restart on wake, so the gap itself is the evidence.
+        if awaySince == nil, let lastSample, now.timeIntervalSince(lastSample) >= threshold {
+            awaySince = lastSample
         }
         if idleSeconds >= threshold {
             awaySince = awaySince ?? now.addingTimeInterval(-idleSeconds)
