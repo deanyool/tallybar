@@ -34,7 +34,12 @@ public final class AppModel: ObservableObject {
     /// Loads the ledger for a real launch and surfaces anything that went wrong.
     public static func launch(store: LedgerStore, now: Date = Date()) -> AppModel {
         do {
-            let model = AppModel(ledger: try store.load(), store: store, now: now)
+            let (ledger, outcome) = try store.load()
+            let model = AppModel(ledger: ledger, store: store, now: now)
+            if case let .recovered(usedBackup, quarantined) = outcome {
+                let source = usedBackup ? "Restored the latest backup." : "No backup could be read, so TallyBar started empty."
+                model.problem = "The data file could not be read. \(source) The damaged file was kept at \(quarantined.path)."
+            }
             model.checkForMissedTime()
             return model
         } catch {

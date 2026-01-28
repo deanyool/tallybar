@@ -2,7 +2,10 @@ import Foundation
 
 /// The whole document: everything TallyBar knows, in one value. All changes go through
 /// its mutating methods, which is why the tracking rules can be tested without any UI.
-public struct Ledger: Codable, Equatable, Sendable {
+public struct Ledger: Equatable, Sendable {
+    public static let currentVersion = 1
+
+    public var version: Int
     public var clients: [Client]
     public var entries: [TimeEntry]
     public var running: RunningSession?
@@ -18,6 +21,7 @@ public struct Ledger: Codable, Equatable, Sendable {
         running: RunningSession? = nil,
         settings: TallySettings = TallySettings()
     ) {
+        self.version = Ledger.currentVersion
         self.clients = clients
         self.entries = entries
         self.running = running
@@ -41,5 +45,23 @@ public struct Ledger: Codable, Equatable, Sendable {
         calendar.timeZone = timeZone
         calendar.firstWeekday = settings.firstWeekday
         return calendar
+    }
+}
+
+extension Ledger: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case version, clients, entries, running, settings
+        case lastClientID, lastHeartbeat
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        version = try container.decodeIfPresent(Int.self, forKey: .version) ?? 1
+        clients = try container.decodeIfPresent([Client].self, forKey: .clients) ?? []
+        entries = try container.decodeIfPresent([TimeEntry].self, forKey: .entries) ?? []
+        running = try container.decodeIfPresent(RunningSession.self, forKey: .running)
+        settings = try container.decodeIfPresent(TallySettings.self, forKey: .settings) ?? TallySettings()
+        lastClientID = try container.decodeIfPresent(UUID.self, forKey: .lastClientID)
+        lastHeartbeat = try container.decodeIfPresent(Date.self, forKey: .lastHeartbeat)
     }
 }
