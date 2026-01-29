@@ -2,8 +2,14 @@
 
 A menu bar time tracker for freelancers. Local only, no account.
 
-Click a client to start, click again to stop. Hourly rates per client and a total
-for today. Everything is stored in one JSON file on your Mac.
+- One click start, stop and switch per client
+- Daily and weekly totals, weekly goal ring
+- Timesheet with editing
+- CSV export
+- Idle detection: keep or discard the time you were away
+
+Everything is stored in one JSON file at
+`~/Library/Application Support/TallyBar/ledger.json`.
 
 ## Build
 
@@ -11,3 +17,9 @@ for today. Everything is stored in one JSON file on your Mac.
     swift run TallyBar
 
 Needs macOS 14 and Swift 5.10 or later.
+
+## Tests
+
+    swift test
+
+The tests use Swift Testing, so they need the Xcode toolchain.

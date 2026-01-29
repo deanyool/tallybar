@@ -4,6 +4,15 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-01-28
+
+### Added
+
+- Timesheet window with editing, manual entries and deletion.
+- CSV export.
+- Idle detection with keep, discard, and discard and stop.
+- Recovery after a crash or power loss, using a heartbeat in the saved file.
+
 ## [0.2.0] - 2025-12-20
 
 ### Added
