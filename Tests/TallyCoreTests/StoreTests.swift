@@ -103,6 +103,16 @@ struct StoreTests {
         }
     }
 
+    @Test func oldFilesPickUpDefaultsForNewSettings() throws {
+        let store = store()
+        let json = #"{"version": 1, "clients": [], "entries": [], "settings": {"weeklyGoalHours": 12}}"#
+        try FileManager.default.createDirectory(at: store.url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data(json.utf8).write(to: store.url)
+        let settings = try store.load().ledger.settings
+        #expect(settings.weeklyGoalHours == 12)
+        #expect(settings.idleThresholdMinutes == TallySettings().idleThresholdMinutes)
+    }
+
     @Test func defaultLocationIsApplicationSupport() {
         #expect(LedgerStore.defaultURL.path.hasSuffix("Application Support/TallyBar/ledger.json"))
     }

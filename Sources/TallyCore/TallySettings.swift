@@ -1,6 +1,6 @@
 import Foundation
 
-public struct TallySettings: Codable, Equatable, Sendable {
+public struct TallySettings: Equatable, Sendable {
     /// Hours per week the goal ring counts toward. 0 hides the ring.
     public var weeklyGoalHours: Double = 30
     /// Minutes without input before asking about the time. 0 turns detection off.
@@ -12,4 +12,37 @@ public struct TallySettings: Codable, Equatable, Sendable {
     public var defaultCurrency: String = "USD"
 
     public init() {}
+}
+
+/// Every key is optional when decoding so a file from an older version picks up the
+/// defaults for settings it has never heard of.
+extension TallySettings: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case weeklyGoalHours, idleThresholdMinutes, firstWeekday, minimumEntrySeconds
+        case defaultCurrency
+    }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let fallback = TallySettings()
+        weeklyGoalHours = try values.decodeIfPresent(Double.self, forKey: .weeklyGoalHours)
+            ?? fallback.weeklyGoalHours
+        idleThresholdMinutes = try values.decodeIfPresent(Int.self, forKey: .idleThresholdMinutes)
+            ?? fallback.idleThresholdMinutes
+        firstWeekday = try values.decodeIfPresent(Int.self, forKey: .firstWeekday)
+            ?? fallback.firstWeekday
+        minimumEntrySeconds = try values.decodeIfPresent(Int.self, forKey: .minimumEntrySeconds)
+            ?? fallback.minimumEntrySeconds
+        defaultCurrency = try values.decodeIfPresent(String.self, forKey: .defaultCurrency)
+            ?? fallback.defaultCurrency
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(weeklyGoalHours, forKey: .weeklyGoalHours)
+        try values.encode(idleThresholdMinutes, forKey: .idleThresholdMinutes)
+        try values.encode(firstWeekday, forKey: .firstWeekday)
+        try values.encode(minimumEntrySeconds, forKey: .minimumEntrySeconds)
+        try values.encode(defaultCurrency, forKey: .defaultCurrency)
+    }
 }
