@@ -47,6 +47,26 @@ struct MoneyTests {
         #expect(Money(Decimal(string: "1250.5")!).formatted(locale: Locale(identifier: "en_US")) == "$1,250.50")
     }
 
+    @Test func survivesJSONWithoutLosingCents() throws {
+        let original = Money(Decimal(string: "98765432109876.54")!, currency: "CAD")
+        let data = try JSONEncoder().encode(original)
+        #expect(String(data: data, encoding: .utf8)!.contains("\"98765432109876.54\""))
+        #expect(try JSONDecoder().decode(Money.self, from: data) == original)
+    }
+
+    @Test func readsOlderFilesThatStoredANumber() throws {
+        let json = #"{"amount": 125.5, "currency": "USD"}"#
+        let money = try JSONDecoder().decode(Money.self, from: Data(json.utf8))
+        #expect(money.amount == Decimal(string: "125.5")!)
+    }
+
+    @Test func rejectsAmountsThatAreNotNumbers() {
+        let json = #"{"amount": "lots", "currency": "USD"}"#
+        #expect(throws: DecodingError.self) {
+            try JSONDecoder().decode(Money.self, from: Data(json.utf8))
+        }
+    }
+
     @Test func normalizesCurrencyCase() {
         #expect(Money(1, currency: "eur").currency == "EUR")
     }

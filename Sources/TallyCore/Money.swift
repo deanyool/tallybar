@@ -2,7 +2,7 @@ import Foundation
 
 /// An amount of a specific currency. Always `Decimal`, never `Double`, so that
 /// $0.10 + $0.20 is exactly $0.30.
-public struct Money: Hashable, Codable, Sendable {
+public struct Money: Hashable, Sendable {
     public var amount: Decimal
     public var currency: String
 
@@ -52,5 +52,34 @@ public extension Money {
     static func + (lhs: Money, rhs: Money) -> Money {
         precondition(lhs.currency == rhs.currency, "cannot add \(lhs.currency) to \(rhs.currency)")
         return Money(lhs.amount + rhs.amount, currency: lhs.currency)
+    }
+}
+
+/// Stored as a string: JSON numbers pass through `Double` and lose cents on large amounts.
+/// Files written by versions before 0.4 hold a number, so decoding accepts both.
+extension Money: Codable {
+    private enum CodingKeys: String, CodingKey {
+        case amount, currency
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let currency = try container.decode(String.self, forKey: .currency)
+        if let text = try? container.decode(String.self, forKey: .amount) {
+            guard let amount = Decimal(string: text, locale: Locale(identifier: "en_US_POSIX")) else {
+                throw DecodingError.dataCorruptedError(
+                    forKey: .amount, in: container, debugDescription: "not a number: \(text)"
+                )
+            }
+            self.init(amount, currency: currency)
+        } else {
+            self.init(try container.decode(Decimal.self, forKey: .amount), currency: currency)
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(amount.description, forKey: .amount)
+        try container.encode(currency, forKey: .currency)
     }
 }
