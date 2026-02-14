@@ -70,6 +70,14 @@ struct InvoiceBuilderTests {
         #expect(invoice.subtotal.amount == 300)
     }
 
+    @Test func taxRoundsHalfUpOnTheSubtotal() throws {
+        var (ledger, client) = Fixtures.ledger(rate: Decimal(string: "33.50")!)
+        ledger.entries = [entry(client, "2025-10-06T09:00:00-04:00", "2025-10-06T10:00:00-04:00")]
+        let invoice = try ledger.buildInvoice(request(client, tax: 13), calendar: calendar)
+        #expect(invoice.tax.amount == Decimal(string: "4.36")!)
+        #expect(invoice.total.amount == Decimal(string: "37.86")!)
+    }
+
     @Test func subtotalIsTheSumOfThePrintedLines() throws {
         var (ledger, client) = Fixtures.ledger(rate: 100)
         // 20 minutes three times: each line rounds to 33.33, and 99.99 is what must print.

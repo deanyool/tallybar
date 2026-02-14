@@ -47,7 +47,7 @@ public struct Invoice: Hashable, Sendable {
     }
 
     public var tax: Money {
-        Money(subtotal.amount * taxPercent / 100, currency: currency)
+        Money(subtotal.amount * taxPercent / 100, currency: currency).rounded
     }
 
     public var total: Money {
