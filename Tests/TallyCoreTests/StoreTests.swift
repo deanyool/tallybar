@@ -17,6 +17,7 @@ struct StoreTests {
             note: "Crossed the fall-back hour, with \"quotes\" and ünïcode"
         ))
         ledger.start(clientID: client.id, note: "Still going", at: Fixtures.at("2025-11-03T09:00:00-05:00"))
+        ledger.settings.defaultTaxPercent = Decimal(string: "13.5")!
         return ledger
     }
 
