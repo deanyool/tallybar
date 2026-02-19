@@ -15,6 +15,8 @@ public struct SettingsView: View {
                 .tabItem { Label("General", systemImage: "gearshape") }
             ClientsSettingsView(model: model)
                 .tabItem { Label("Clients", systemImage: "person.2") }
+            InvoiceSettingsView(model: model)
+                .tabItem { Label("Invoices", systemImage: "doc.text") }
         }
         .frame(width: 520, height: 460)
     }
@@ -149,5 +151,41 @@ private struct ClientEditorRow: View {
                 }
             }
         )
+    }
+}
+
+/// Details printed on invoices and how billable time is rounded.
+public struct InvoiceSettingsView: View {
+    @ObservedObject var model: AppModel
+
+    public init(model: AppModel) {
+        self.model = model
+    }
+
+    public var body: some View {
+        Form {
+            Section("Your business") {
+                TextField("Name", text: model.binding(\.business.name))
+                TextField("Address", text: model.binding(\.business.address), axis: .vertical)
+                    .lineLimit(2...4)
+                TextField("Email", text: model.binding(\.business.email))
+                TextField("Tax ID", text: model.binding(\.business.taxID))
+                TextField("Payment instructions", text: model.binding(\.business.paymentInstructions), axis: .vertical)
+                    .lineLimit(2...4)
+            }
+            Section("Billing") {
+                TextField("Default tax %", value: model.binding(\.defaultTaxPercent), format: .number)
+                Stepper(
+                    "Payment terms: \(model.ledger.settings.paymentTermsDays) days",
+                    value: model.binding(\.paymentTermsDays),
+                    in: 0...120
+                )
+                TextField("Invoice prefix", text: model.binding(\.invoicePrefix))
+                Picker("Page size", selection: model.binding(\.invoicePageSize)) {
+                    Text("US Letter").tag(InvoicePageSize.letter)
+                }
+            }
+        }
+        .formStyle(.grouped)
     }
 }
