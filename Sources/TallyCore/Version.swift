@@ -1,4 +1,4 @@
 /// The app version. `scripts/build-app.sh` reads this line for the bundle's Info.plist.
 public enum TallyVersion {
-    public static let current = "0.3.0"
+    public static let current = "0.4.0"
 }

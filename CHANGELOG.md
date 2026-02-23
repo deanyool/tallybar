@@ -4,6 +4,18 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-02-22
+
+### Added
+
+- PDF invoices with pagination, tax, payment terms and your business details.
+- Three line styles: one per day, one per entry, or a single total.
+
+### Fixed
+
+- Money is stored as a string, because JSON numbers can lose cents on large amounts.
+  Existing files still load.
+
 ## [0.3.0] - 2026-01-28
 
 ### Added
