@@ -3,7 +3,7 @@ import Foundation
 /// The whole document: everything TallyBar knows, in one value. All changes go through
 /// its mutating methods, which is why the tracking rules can be tested without any UI.
 public struct Ledger: Equatable, Sendable {
-    public static let currentVersion = 1
+    public static let currentVersion = 2
 
     public var version: Int
     public var clients: [Client]
@@ -14,6 +14,7 @@ public struct Ledger: Equatable, Sendable {
     public var lastClientID: UUID?
     /// Last moment the app knew it was alive during a session, for crash and power-off recovery.
     public var lastHeartbeat: Date?
+    public var nextInvoiceNumber: Int
 
     public init(
         clients: [Client] = [],
@@ -28,6 +29,7 @@ public struct Ledger: Equatable, Sendable {
         self.settings = settings
         self.lastClientID = nil
         self.lastHeartbeat = nil
+        self.nextInvoiceNumber = 1
     }
 
     public func client(id: UUID) -> Client? {
@@ -51,7 +53,7 @@ public struct Ledger: Equatable, Sendable {
 extension Ledger: Codable {
     private enum CodingKeys: String, CodingKey {
         case version, clients, entries, running, settings
-        case lastClientID, lastHeartbeat
+        case lastClientID, lastHeartbeat, nextInvoiceNumber
     }
 
     public init(from decoder: Decoder) throws {
@@ -63,5 +65,6 @@ extension Ledger: Codable {
         settings = try container.decodeIfPresent(TallySettings.self, forKey: .settings) ?? TallySettings()
         lastClientID = try container.decodeIfPresent(UUID.self, forKey: .lastClientID)
         lastHeartbeat = try container.decodeIfPresent(Date.self, forKey: .lastHeartbeat)
+        nextInvoiceNumber = try container.decodeIfPresent(Int.self, forKey: .nextInvoiceNumber) ?? 1
     }
 }

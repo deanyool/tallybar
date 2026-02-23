@@ -137,4 +137,10 @@ struct InvoiceBuilderTests {
         }
     }
 
+    @Test func customPrefixAppearsInTheNumber() {
+        var ledger = Ledger()
+        ledger.settings.invoicePrefix = "2025-"
+        ledger.nextInvoiceNumber = 42
+        #expect(ledger.suggestedInvoiceNumber == "2025-0042")
+    }
 }

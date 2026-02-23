@@ -170,6 +170,17 @@ public final class AppModel: ObservableObject {
 
     // MARK: Output
 
+    /// Writes the invoice PDF.
+    public func saveInvoice(_ request: InvoiceRequest, to url: URL) throws {
+        let invoice = try ledger.buildInvoice(request, calendar: calendar)
+        let pdf = InvoicePDF(
+            invoice: invoice,
+            pageSize: ledger.settings.invoicePageSize,
+            timeZone: timeZone
+        )
+        try pdf.render().write(to: url, options: .atomic)
+    }
+
     public func saveCSV(in interval: DateInterval, clientID: UUID?, options: CSVOptions, to url: URL) throws {
         let text = ledger.csv(in: interval, clientID: clientID, options: options, calendar: calendar)
         try Data(text.utf8).write(to: url, options: .atomic)

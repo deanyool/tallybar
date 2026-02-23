@@ -84,6 +84,7 @@ public struct MenuPanel: View {
     private var footer: some View {
         HStack(spacing: 2) {
             FooterButton(title: "Timesheet", symbol: "list.bullet.rectangle", action: actions.openTimesheet)
+            FooterButton(title: "Invoice", symbol: "doc.text", action: actions.openInvoice)
             FooterButton(title: "Export", symbol: "square.and.arrow.up", action: actions.openExport)
             Spacer()
             FooterButton(title: "Settings", symbol: "gearshape", action: actions.openSettings)
