@@ -64,6 +64,30 @@ struct InvoiceColumns {
     }
 }
 
+/// Splits line items across pages. Measuring happens up front because the footer
+/// prints "Page 1 of 3", so the page count must be known before anything is drawn.
+struct InvoicePagination {
+    let pages: [[InvoiceLine]]
+
+    /// - Parameter rowHeight: height of a line item, which depends on wrapped text.
+    /// - Parameter closingHeight: the totals and notes block, kept together on the last page.
+    init(lines: [InvoiceLine], pageHeight: CGFloat, closingHeight: CGFloat, rowHeight: (InvoiceLine) -> CGFloat) {
+        let top = pageHeight - 2 * InvoiceStyle.margin - InvoiceStyle.footerHeight - InvoiceStyle.tableHeaderHeight
+        var result: [[InvoiceLine]] = [[]]
+        var room = top - InvoiceStyle.firstPageHeaderHeight
+        for line in lines {
+            let height = rowHeight(line)
+            if height > room, !(result[result.count - 1].isEmpty) {
+                result.append([])
+                room = top - InvoiceStyle.laterPageHeaderHeight
+            }
+            result[result.count - 1].append(line)
+            room -= height
+        }
+        pages = result
+    }
+}
+
 /// Text helpers over Core Text, with a top-left origin so layout code can read downward.
 struct PDFCanvas {
     let context: CGContext

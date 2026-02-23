@@ -30,12 +30,24 @@ public struct InvoicePDF {
             throw InvoicePDFError.couldNotCreateContext
         }
         let canvas = PDFCanvas(context: context, pageHeight: pageSize.height)
-        // TODO: long invoices run off the bottom of the page
-        context.beginPDFPage(nil)
-        var top = drawLetterhead(on: canvas)
-        top = drawTable(invoice.lines, on: canvas, top: top)
-        drawClosing(on: canvas, top: top)
-        context.endPDFPage()
+        let pagination = InvoicePagination(
+            lines: invoice.lines,
+            pageHeight: pageSize.height,
+            closingHeight: closingHeight,
+            rowHeight: rowHeight(_:)
+        )
+        for (index, lines) in pagination.pages.enumerated() {
+            context.beginPDFPage(nil)
+            var top = index == 0 ? drawLetterhead(on: canvas) : drawContinuationHeader(on: canvas)
+            if !lines.isEmpty {
+                top = drawTable(lines, on: canvas, top: top)
+            }
+            if index == pagination.pages.count - 1 {
+                drawClosing(on: canvas, top: top)
+            }
+            drawFooter(on: canvas, page: index + 1, of: pagination.pages.count)
+            context.endPDFPage()
+        }
         context.closePDF()
         return output as Data
     }
@@ -110,6 +122,12 @@ public struct InvoicePDF {
         [invoice.client.name, invoice.client.billingAddress].filter { !$0.isEmpty }.joined(separator: "\n")
     }
 
+    private func drawContinuationHeader(on canvas: PDFCanvas) -> CGFloat {
+        let top = InvoiceStyle.margin
+        canvas.draw("Invoice \(invoice.number), continued", left: left, top: top, width: contentWidth, font: InvoiceStyle.bodyBold)
+        return top + InvoiceStyle.laterPageHeaderHeight
+    }
+
     private func drawTable(_ lines: [InvoiceLine], on canvas: PDFCanvas, top: CGFloat) -> CGFloat {
         let columns = columns
         func header(_ text: String, _ column: CGRect, _ alignment: PDFCanvas.Alignment = .left) {
@@ -144,6 +162,12 @@ public struct InvoicePDF {
         [invoice.notes, invoice.sender.paymentInstructions].filter { !$0.isEmpty }.joined(separator: "\n\n")
     }
 
+    private var closingHeight: CGFloat {
+        let totals: CGFloat = 96
+        let notes = PDFCanvas.height(of: paymentText, font: InvoiceStyle.body, width: contentWidth)
+        return totals + (notes > 0 ? notes + 28 : 0)
+    }
+
     private func drawClosing(on canvas: PDFCanvas, top: CGFloat) {
         var cursor = top + 12
         let labelLeft = right - 220
@@ -165,5 +189,12 @@ public struct InvoicePDF {
             canvas.draw("NOTES", left: left, top: cursor, width: contentWidth, font: InvoiceStyle.heading, color: InvoiceStyle.muted)
             canvas.draw(paymentText, left: left, top: cursor + 14, width: contentWidth, font: InvoiceStyle.body)
         }
+    }
+
+    private func drawFooter(on canvas: PDFCanvas, page: Int, of pageCount: Int) {
+        let top = pageSize.height - InvoiceStyle.margin + 8
+        canvas.draw(invoice.number, left: left, top: top, width: 200, font: InvoiceStyle.small, color: InvoiceStyle.muted)
+        canvas.draw("Page \(page) of \(pageCount)", left: right - 100, top: top, width: 100,
+                    font: InvoiceStyle.small, color: InvoiceStyle.muted, alignment: .right)
     }
 }
