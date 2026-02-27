@@ -70,6 +70,17 @@ struct InvoicePDFTests {
         #expect(rows == 60)
     }
 
+    @Test func totalsThatDoNotFitMoveToTheirOwnPageWhole() throws {
+        // Find a length where the rows fill page one exactly; the closing block must not split.
+        for days in 18...30 {
+            let document = try render(try invoice(days: days))
+            let pages = (0..<document.pageCount).compactMap { document.page(at: $0)?.string }
+            let holders = pages.filter { $0.contains("Total due") }
+            #expect(holders.count == 1)
+            #expect(holders[0].contains("Pay by bank transfer."))
+        }
+    }
+
     @Test func longDescriptionsWrapRatherThanClip() throws {
         let long = (1...40).map { "word\($0)" }.joined(separator: " ")
         let document = try render(try invoice(days: 1, note: long))

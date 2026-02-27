@@ -84,6 +84,9 @@ struct InvoicePagination {
             result[result.count - 1].append(line)
             room -= height
         }
+        if closingHeight > room {
+            result.append([])
+        }
         pages = result
     }
 }
