@@ -4,14 +4,16 @@ import TallyCore
 /// The settings window: general behavior, clients, and invoice details.
 public struct SettingsView: View {
     @ObservedObject var model: AppModel
+    let launchAtLogin: LaunchAtLoginControl
 
-    public init(model: AppModel) {
+    public init(model: AppModel, launchAtLogin: LaunchAtLoginControl = .system) {
         self.model = model
+        self.launchAtLogin = launchAtLogin
     }
 
     public var body: some View {
         TabView {
-            GeneralSettingsView(model: model)
+            GeneralSettingsView(model: model, launchAtLogin: launchAtLogin)
                 .tabItem { Label("General", systemImage: "gearshape") }
             ClientsSettingsView(model: model)
                 .tabItem { Label("Clients", systemImage: "person.2") }
@@ -25,9 +27,13 @@ public struct SettingsView: View {
 /// Goal, idle detection, hotkey and startup.
 public struct GeneralSettingsView: View {
     @ObservedObject var model: AppModel
+    let launchAtLogin: LaunchAtLoginControl
+    @State private var launches = false
+    @State private var launchProblem: String?
 
-    public init(model: AppModel) {
+    public init(model: AppModel, launchAtLogin: LaunchAtLoginControl) {
         self.model = model
+        self.launchAtLogin = launchAtLogin
     }
 
     public var body: some View {
@@ -56,8 +62,38 @@ public struct GeneralSettingsView: View {
                     HotKeyRecorder(combo: model.binding(\.hotKey))
                 }
             }
+            Section("Startup") {
+                Toggle("Launch at login", isOn: launchBinding)
+                    .disabled(!launchAtLogin.isAvailable)
+                if !launchAtLogin.isAvailable {
+                    Text("Available when running the built TallyBar.app.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if let launchProblem {
+                    Text(launchProblem)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+            }
         }
         .formStyle(.grouped)
+        .onAppear { launches = launchAtLogin.isEnabled() }
+    }
+
+    private var launchBinding: Binding<Bool> {
+        Binding(
+            get: { launches },
+            set: { newValue in
+                do {
+                    try launchAtLogin.setEnabled(newValue)
+                    launches = launchAtLogin.isEnabled()
+                    launchProblem = nil
+                } catch {
+                    launchProblem = error.localizedDescription
+                }
+            }
+        )
     }
 }
 
