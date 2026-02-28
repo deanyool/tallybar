@@ -17,6 +17,7 @@ struct StoreTests {
             note: "Crossed the fall-back hour, with \"quotes\" and ünïcode"
         ))
         ledger.start(clientID: client.id, note: "Still going", at: Fixtures.at("2025-11-03T09:00:00-05:00"))
+        ledger.settings.hotKey = nil
         ledger.settings.defaultTaxPercent = Decimal(string: "13.5")!
         return ledger
     }
@@ -40,6 +41,14 @@ struct StoreTests {
         let store = store()
         try store.save(sampleLedger())
         #expect(try store.load().ledger.running?.note == "Still going")
+    }
+
+    @Test func turnedOffHotKeyStaysOff() throws {
+        let store = store()
+        var ledger = Ledger()
+        ledger.settings.hotKey = nil
+        try store.save(ledger)
+        #expect(try store.load().ledger.settings.hotKey == nil)
     }
 
     @Test func fileIsReadableJSON() throws {
@@ -112,6 +121,7 @@ struct StoreTests {
         let settings = try store.load().ledger.settings
         #expect(settings.weeklyGoalHours == 12)
         #expect(settings.idleThresholdMinutes == TallySettings().idleThresholdMinutes)
+        #expect(settings.hotKey == .standard)
     }
 
     @Test func defaultLocationIsApplicationSupport() {

@@ -10,6 +10,7 @@ public final class AppController: ObservableObject {
     public let model: AppModel
     public let windows = WindowManager()
 
+    private let hotKey = GlobalHotKey()
     private var timer: Timer?
     private var subscriptions: Set<AnyCancellable> = []
 
@@ -73,6 +74,12 @@ public final class AppController: ObservableObject {
     }
 
     private func observeModel() {
+        model.$ledger
+            .map(\.settings.hotKey)
+            .removeDuplicates()
+            .sink { [weak self] combo in self?.applyHotKey(combo) }
+            .store(in: &subscriptions)
+
         model.$pendingAway
             .removeDuplicates()
             .sink { [weak self] away in self?.showAwayPrompt(away) }
@@ -82,6 +89,17 @@ public final class AppController: ObservableObject {
             .compactMap { $0 }
             .sink { [weak self] message in self?.showProblem(message) }
             .store(in: &subscriptions)
+    }
+
+    private func applyHotKey(_ combo: HotKeyCombo?) {
+        guard let combo else {
+            hotKey.unregister()
+            return
+        }
+        let registered = hotKey.register(combo) { [weak self] in self?.model.toggle() }
+        if !registered {
+            model.problem = "\(combo.displayString) is already in use. Pick another shortcut in Settings."
+        }
     }
 
     private func showAwayPrompt(_ away: AwayPeriod?) {
