@@ -51,6 +51,11 @@ public struct GeneralSettingsView: View {
                     Text("Saturday").tag(7)
                 }
             }
+            Section("Shortcut") {
+                LabeledContent("Start or stop") {
+                    HotKeyRecorder(combo: model.binding(\.hotKey))
+                }
+            }
         }
         .formStyle(.grouped)
     }
