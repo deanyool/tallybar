@@ -4,6 +4,14 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-03-01
+
+### Added
+
+- Global hotkey to start and stop, defaulting to Control-Option-Command-T.
+- Launch at login.
+- `scripts/build-app.sh` builds a real `.app` bundle with `LSUIElement`.
+
 ## [0.4.0] - 2026-02-22
 
 ### Added
