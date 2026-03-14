@@ -46,7 +46,7 @@ public struct InvoiceRequest: Sendable {
 public extension Ledger {
     /// Turns tracked time into an invoice. Time is clipped to the period and split at
     /// local midnight, so a late session lands on the right days and only the billed
-    /// part counts. Each piece is priced from exact seconds.
+    /// part counts. Each piece is rounded on its own, then priced from exact seconds.
     func buildInvoice(_ request: InvoiceRequest, calendar: Calendar) throws -> Invoice {
         guard let client = client(id: request.clientID) else { throw InvoiceError.unknownClient }
         let billable = entries
@@ -60,7 +60,7 @@ public extension Ledger {
                 InvoicePiece(
                     day: slice.day,
                     note: entry.note,
-                    seconds: slice.seconds
+                    seconds: settings.billingRounding.billable(seconds: slice.seconds)
                 )
             }
         }
@@ -83,7 +83,7 @@ public extension Ledger {
     }
 }
 
-/// A fragment of work on one day, before grouping into lines.
+/// A rounded fragment of work on one day, before grouping into lines.
 private struct InvoicePiece {
     var day: Date
     var note: String

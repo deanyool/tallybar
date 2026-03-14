@@ -215,6 +215,15 @@ public struct InvoiceSettingsView: View {
                     .lineLimit(2...4)
             }
             Section("Billing") {
+                Picker("Round time to", selection: model.binding(\.billingRounding.incrementMinutes)) {
+                    Text("Exact time").tag(0)
+                    ForEach([1, 5, 6, 10, 15, 30], id: \.self) { Text("\($0) minutes").tag($0) }
+                }
+                Picker("Rounding", selection: model.binding(\.billingRounding.mode)) {
+                    Text("Nearest").tag(BillingRounding.Mode.nearest)
+                    Text("Always up").tag(BillingRounding.Mode.up)
+                }
+                .disabled(model.ledger.settings.billingRounding.incrementMinutes == 0)
                 TextField("Default tax %", value: model.binding(\.defaultTaxPercent), format: .number)
                 Stepper(
                     "Payment terms: \(model.ledger.settings.paymentTermsDays) days",

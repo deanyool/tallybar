@@ -90,6 +90,26 @@ struct InvoiceBuilderTests {
         #expect(invoice.subtotal.amount == Decimal(string: "99.99")!)
     }
 
+    @Test func roundingAppliesPerSessionNotToTheTotal() throws {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.settings.billingRounding = BillingRounding(incrementMinutes: 15, mode: .up)
+        ledger.entries = [
+            entry(client, "2025-10-06T09:00:00-04:00", "2025-10-06T09:05:00-04:00"),
+            entry(client, "2025-10-06T10:00:00-04:00", "2025-10-06T10:05:00-04:00")
+        ]
+        let invoice = try ledger.buildInvoice(request(client), calendar: calendar)
+        #expect(invoice.billableSeconds == 1800)
+    }
+
+    @Test func allRoundedAwayIsNotAnInvoice() {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.settings.billingRounding = BillingRounding(incrementMinutes: 15, mode: .nearest)
+        ledger.entries = [entry(client, "2025-10-06T09:00:00-04:00", "2025-10-06T09:02:00-04:00")]
+        #expect(throws: InvoiceError.noBillableTime) {
+            try ledger.buildInvoice(request(client), calendar: calendar)
+        }
+    }
+
     @Test func perEntryGroupingKeepsNotes() throws {
         var (ledger, client) = Fixtures.ledger()
         ledger.entries = [

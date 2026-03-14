@@ -14,6 +14,7 @@ public struct TallySettings: Equatable, Sendable {
     /// Sessions shorter than this are treated as misclicks and dropped.
     public var minimumEntrySeconds: Int = 10
     public var defaultCurrency: String = "USD"
+    public var billingRounding = BillingRounding()
     public var hotKey: HotKeyCombo? = .standard
     public var business = BusinessProfile()
     public var defaultTaxPercent: Decimal = 0
@@ -29,7 +30,8 @@ public struct TallySettings: Equatable, Sendable {
 extension TallySettings: Codable {
     private enum CodingKeys: String, CodingKey {
         case weeklyGoalHours, idleThresholdMinutes, firstWeekday, minimumEntrySeconds
-        case defaultCurrency, hotKey, business, defaultTaxPercent, paymentTermsDays, invoicePageSize, invoicePrefix
+        case defaultCurrency, billingRounding, hotKey, business
+        case defaultTaxPercent, paymentTermsDays, invoicePageSize, invoicePrefix
     }
 
     public init(from decoder: Decoder) throws {
@@ -45,6 +47,8 @@ extension TallySettings: Codable {
             ?? fallback.minimumEntrySeconds
         defaultCurrency = try values.decodeIfPresent(String.self, forKey: .defaultCurrency)
             ?? fallback.defaultCurrency
+        billingRounding = try values.decodeIfPresent(BillingRounding.self, forKey: .billingRounding)
+            ?? fallback.billingRounding
         hotKey = values.contains(.hotKey)
             ? try values.decodeIfPresent(HotKeyCombo.self, forKey: .hotKey)
             : fallback.hotKey
@@ -67,6 +71,7 @@ extension TallySettings: Codable {
         try values.encode(firstWeekday, forKey: .firstWeekday)
         try values.encode(minimumEntrySeconds, forKey: .minimumEntrySeconds)
         try values.encode(defaultCurrency, forKey: .defaultCurrency)
+        try values.encode(billingRounding, forKey: .billingRounding)
         // Encoded even when nil: a missing key means "older file", nil means "turned off".
         try values.encode(hotKey, forKey: .hotKey)
         try values.encode(business, forKey: .business)
