@@ -42,7 +42,8 @@ public extension Ledger {
                     entry.note,
                     client.hourlyRate.plainString,
                     client.hourlyRate.earned(seconds: seconds).plainString,
-                    client.hourlyRate.currency
+                    client.hourlyRate.currency,
+                    entry.invoiceNumber ?? ""
                 ])
             }
         }
@@ -53,7 +54,7 @@ public extension Ledger {
 enum CSVRow {
     static let header = [
         "date", "start", "end", "hours", "duration", "client", "note",
-        "rate", "amount", "currency"
+        "rate", "amount", "currency", "invoice"
     ]
 
     /// Quotes when needed. A leading =, +, - or @ would run as a formula when the file

@@ -4,6 +4,7 @@ import Foundation
 public enum EntryProblem: Error, Equatable, Sendable {
     case endNotAfterStart
     case unknownClient
+    case alreadyInvoiced(String)
 }
 
 extension EntryProblem: CustomStringConvertible {
@@ -13,6 +14,8 @@ extension EntryProblem: CustomStringConvertible {
             return "The end time must be after the start time."
         case .unknownClient:
             return "That client no longer exists."
+        case .alreadyInvoiced(let number):
+            return "This entry was billed on invoice \(number)."
         }
     }
 }
@@ -27,6 +30,9 @@ public extension Ledger {
     func validate(_ entry: TimeEntry) throws {
         guard entry.end > entry.start else { throw EntryProblem.endNotAfterStart }
         guard client(id: entry.clientID) != nil else { throw EntryProblem.unknownClient }
+        if let number = entries.first(where: { $0.id == entry.id })?.invoiceNumber {
+            throw EntryProblem.alreadyInvoiced(number)
+        }
     }
 
     /// Adds or replaces an entry after validating it.
@@ -42,8 +48,12 @@ public extension Ledger {
         }
     }
 
-    /// Removes an entry.
+    /// Removes an entry. Invoiced entries stay so the invoice can always be explained.
     mutating func deleteEntry(id: UUID) throws {
-        entries.removeAll { $0.id == id }
+        guard let index = entries.firstIndex(where: { $0.id == id }) else { return }
+        if let number = entries[index].invoiceNumber {
+            throw EntryProblem.alreadyInvoiced(number)
+        }
+        entries.remove(at: index)
     }
 }

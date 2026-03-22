@@ -170,7 +170,8 @@ public final class AppModel: ObservableObject {
 
     // MARK: Output
 
-    /// Writes the invoice PDF.
+    /// Writes the invoice PDF, then marks the entries as billed. In that order: if the
+    /// write fails, nothing was billed.
     public func saveInvoice(_ request: InvoiceRequest, to url: URL) throws {
         let invoice = try ledger.buildInvoice(request, calendar: calendar)
         let pdf = InvoicePDF(
@@ -179,6 +180,7 @@ public final class AppModel: ObservableObject {
             timeZone: timeZone
         )
         try pdf.render().write(to: url, options: .atomic)
+        update { $0.markInvoiced(invoice) }
     }
 
     public func saveCSV(in interval: DateInterval, clientID: UUID?, options: CSVOptions, to url: URL) throws {

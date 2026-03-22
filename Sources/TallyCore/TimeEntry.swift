@@ -17,24 +17,31 @@ public struct TimeEntry: Identifiable, Hashable, Sendable {
     public var start: Date
     public var end: Date
     public var note: String
+    public var invoiceNumber: String?
 
     public init(
         id: UUID = UUID(),
         clientID: UUID,
         start: Date,
         end: Date,
-        note: String = ""
+        note: String = "",
+        invoiceNumber: String? = nil
     ) {
         self.id = id
         self.clientID = clientID
         self.start = start
         self.end = end
         self.note = note
+        self.invoiceNumber = invoiceNumber
     }
 
     /// Length in whole seconds.
     public var seconds: Int {
         max(0, Int(end.timeIntervalSince(start).rounded()))
+    }
+
+    public var isInvoiced: Bool {
+        invoiceNumber != nil
     }
 
     /// The part of this entry inside `interval`, or nil when they do not overlap.
@@ -51,7 +58,7 @@ public struct TimeEntry: Identifiable, Hashable, Sendable {
 
 extension TimeEntry: Codable {
     private enum CodingKeys: String, CodingKey {
-        case id, clientID, start, end, note
+        case id, clientID, start, end, note, invoiceNumber
     }
 
     public init(from decoder: Decoder) throws {
@@ -61,5 +68,6 @@ extension TimeEntry: Codable {
         start = try container.decode(Date.self, forKey: .start)
         end = try container.decode(Date.self, forKey: .end)
         note = try container.decodeIfPresent(String.self, forKey: .note) ?? ""
+        invoiceNumber = try container.decodeIfPresent(String.self, forKey: .invoiceNumber)
     }
 }

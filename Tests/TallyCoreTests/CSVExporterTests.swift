@@ -24,14 +24,14 @@ struct CSVExporterTests {
         )]
         let lines = rows(ledger.csv(in: october, calendar: calendar))
         #expect(lines == [
-            "date,start,end,hours,duration,client,note,rate,amount,currency",
-            "2025-10-06,2025-10-06T09:05:00-04:00,2025-10-06T10:35:00-04:00,1.50,1:30,Acme Test Co,Design,120.50,180.75,USD"
+            "date,start,end,hours,duration,client,note,rate,amount,currency,invoice",
+            "2025-10-06,2025-10-06T09:05:00-04:00,2025-10-06T10:35:00-04:00,1.50,1:30,Acme Test Co,Design,120.50,180.75,USD,"
         ])
     }
 
     @Test func usesCRLFLineEndings() {
         let (ledger, _) = Fixtures.ledger()
-        #expect(ledger.csv(in: october, calendar: calendar).hasSuffix("currency\r\n"))
+        #expect(ledger.csv(in: october, calendar: calendar).hasSuffix("invoice\r\n"))
     }
 
     @Test func splitsAtMidnightByDefault() {
@@ -86,6 +86,17 @@ struct CSVExporterTests {
     ])
     func escapesFields(input: String, expected: String) {
         #expect(CSVRow.field(input) == expected)
+    }
+
+    @Test func showsTheInvoiceNumber() {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.entries = [TimeEntry(
+            clientID: client.id,
+            start: Fixtures.at("2025-10-06T09:00:00-04:00"),
+            end: Fixtures.at("2025-10-06T10:00:00-04:00"),
+            invoiceNumber: "INV-0003"
+        )]
+        #expect(rows(ledger.csv(in: october, calendar: calendar))[1].hasSuffix(",USD,INV-0003"))
     }
 
     @Test func filtersByClientAndSortsOldestFirst() {

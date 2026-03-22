@@ -157,6 +157,44 @@ struct InvoiceBuilderTests {
         }
     }
 
+    @Test func markingAdvancesTheCounterAndBlocksDoubleBilling() throws {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.entries = [entry(client, "2025-10-06T09:00:00-04:00", "2025-10-06T10:00:00-04:00")]
+        #expect(ledger.suggestedInvoiceNumber == "INV-0001")
+        ledger.markInvoiced(try ledger.buildInvoice(request(client), calendar: calendar))
+        #expect(ledger.suggestedInvoiceNumber == "INV-0002")
+        #expect(ledger.entries[0].invoiceNumber == "INV-0001")
+        #expect(throws: InvoiceError.noBillableTime) {
+            try ledger.buildInvoice(request(client), calendar: calendar)
+        }
+    }
+
+    @Test func reissuingCanIncludeBilledTime() throws {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.entries = [entry(client, "2025-10-06T09:00:00-04:00", "2025-10-06T10:00:00-04:00")]
+        ledger.markInvoiced(try ledger.buildInvoice(request(client), calendar: calendar))
+        var again = request(client)
+        again.includeInvoiced = true
+        #expect(try ledger.buildInvoice(again, calendar: calendar).billableSeconds == 3600)
+    }
+
+    @Test func markingSplitsAnEdgeSessionSoTheRestBillsNextTime() throws {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.entries = [entry(client, "2025-10-31T23:00:00-04:00", "2025-11-01T02:00:00-04:00", note: "Launch")]
+        ledger.markInvoiced(try ledger.buildInvoice(request(client), calendar: calendar))
+        #expect(ledger.entries.count == 2)
+        #expect(ledger.entries.reduce(0) { $0 + $1.seconds } == 3 * 3600)
+
+        let november = DateInterval(
+            start: Fixtures.at("2025-11-01T00:00:00-04:00"),
+            end: Fixtures.at("2025-12-01T00:00:00-05:00")
+        )
+        let next = InvoiceRequest(clientID: client.id, period: november, number: "INV-0002", issueDate: issued)
+        let invoice = try ledger.buildInvoice(next, calendar: calendar)
+        #expect(invoice.billableSeconds == 2 * 3600)
+        #expect(invoice.lines[0].description == "Launch")
+    }
+
     @Test func customPrefixAppearsInTheNumber() {
         var ledger = Ledger()
         ledger.settings.invoicePrefix = "2025-"

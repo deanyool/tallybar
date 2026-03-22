@@ -130,6 +130,14 @@ private struct TimesheetRowView: View {
                 }
             }
             Spacer()
+            if let number = row.entry.invoiceNumber {
+                Text(number)
+                    .font(.caption2)
+                    .padding(.horizontal, 5)
+                    .padding(.vertical, 1)
+                    .background(Color.primary.opacity(0.08), in: Capsule())
+                    .accessibilityLabel("Billed on \(number)")
+            }
             Text(timeRange)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -142,7 +150,9 @@ private struct TimesheetRowView: View {
         .onTapGesture(count: 2, perform: edit)
         .contextMenu {
             Button("Edit…", action: edit)
+                .disabled(row.entry.isInvoiced)
             Button("Delete", role: .destructive, action: delete)
+                .disabled(row.entry.isInvoiced)
         }
         .alert("Can't change this entry", isPresented: isShowingProblem, presenting: showProblem) { _ in
             Button("OK", role: .cancel) {}

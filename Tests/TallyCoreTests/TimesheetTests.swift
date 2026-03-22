@@ -95,6 +95,16 @@ struct EntryEditingTests {
         #expect(ledger.entries.count == 2)
     }
 
+    @Test func invoicedEntriesCannotChange() throws {
+        var (ledger, client) = Fixtures.ledger()
+        var entry = TimeEntry(clientID: client.id, start: nine, end: ten)
+        try ledger.save(entry)
+        ledger.entries[0].invoiceNumber = "INV-0001"
+        entry.end = eleven
+        #expect(throws: EntryProblem.alreadyInvoiced("INV-0001")) { try ledger.save(entry) }
+        #expect(throws: EntryProblem.alreadyInvoiced("INV-0001")) { try ledger.deleteEntry(id: entry.id) }
+    }
+
     @Test func deleteRemovesTheEntry() throws {
         var (ledger, client) = Fixtures.ledger()
         let entry = TimeEntry(clientID: client.id, start: nine, end: ten)
@@ -110,4 +120,8 @@ struct EntryEditingTests {
         #expect(ledger.entriesNewestFirst.first?.start == ten)
     }
 
+    @Test func problemsReadAsSentences() {
+        #expect(EntryProblem.alreadyInvoiced("INV-7").description.contains("INV-7"))
+        #expect(EntryProblem.endNotAfterStart.description.hasSuffix("."))
+    }
 }

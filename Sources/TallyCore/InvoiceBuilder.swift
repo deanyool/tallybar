@@ -23,6 +23,8 @@ public struct InvoiceRequest: Sendable {
     public var grouping: InvoiceGrouping
     public var taxPercent: Decimal
     public var notes: String
+    /// Include entries that are already on another invoice, for reissuing one.
+    public var includeInvoiced: Bool
 
     public init(
         clientID: UUID,
@@ -31,7 +33,8 @@ public struct InvoiceRequest: Sendable {
         issueDate: Date,
         grouping: InvoiceGrouping = .day,
         taxPercent: Decimal = 0,
-        notes: String = ""
+        notes: String = "",
+        includeInvoiced: Bool = false
     ) {
         self.clientID = clientID
         self.period = period
@@ -40,6 +43,7 @@ public struct InvoiceRequest: Sendable {
         self.grouping = grouping
         self.taxPercent = taxPercent
         self.notes = notes
+        self.includeInvoiced = includeInvoiced
     }
 }
 
@@ -50,7 +54,7 @@ public extension Ledger {
     func buildInvoice(_ request: InvoiceRequest, calendar: Calendar) throws -> Invoice {
         guard let client = client(id: request.clientID) else { throw InvoiceError.unknownClient }
         let billable = entries
-            .filter { $0.clientID == client.id }
+            .filter { $0.clientID == client.id && (request.includeInvoiced || !$0.isInvoiced) }
             .compactMap { $0.clipped(to: request.period) }
             .sorted { $0.start < $1.start }
         guard !billable.isEmpty else { throw InvoiceError.noBillableTime }
