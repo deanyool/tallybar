@@ -41,6 +41,23 @@ public final class GlobalHotKey {
         action = nil
     }
 
+    /// Sends a synthetic hot key event through the real handler, for the self check.
+    public func simulatePress() -> Bool {
+        var event: EventRef?
+        let created = CreateEvent(
+            nil, OSType(kEventClassKeyboard), UInt32(kEventHotKeyPressed),
+            GetCurrentEventTime(), EventAttributes(kEventAttributeNone), &event
+        )
+        guard created == noErr, let event else { return false }
+        defer { ReleaseEvent(event) }
+        var identifier = EventHotKeyID(signature: GlobalHotKey.signature, id: 1)
+        SetEventParameter(
+            event, EventParamName(kEventParamDirectObject), EventParamType(typeEventHotKeyID),
+            MemoryLayout<EventHotKeyID>.size, &identifier
+        )
+        return SendEventToEventTarget(event, GetEventDispatcherTarget()) == noErr
+    }
+
     private func installHandler() -> Bool {
         guard handlerRef == nil else { return true }
         var spec = EventTypeSpec(eventClass: OSType(kEventClassKeyboard), eventKind: UInt32(kEventHotKeyPressed))

@@ -22,8 +22,17 @@ public final class AppController: ObservableObject {
         startTicking()
     }
 
+    /// Reads the data location from `TALLYBAR_DATA_DIR` when set, so a test run or a
+    /// second copy of the app can keep its own ledger.
+    public static var storeURL: URL {
+        if let directory = ProcessInfo.processInfo.environment["TALLYBAR_DATA_DIR"], !directory.isEmpty {
+            return URL(filePath: directory, directoryHint: .isDirectory).appending(path: "ledger.json")
+        }
+        return LedgerStore.defaultURL
+    }
+
     public static func live() -> AppController {
-        AppController(model: .launch(store: LedgerStore(url: LedgerStore.defaultURL)))
+        AppController(model: .launch(store: LedgerStore(url: storeURL)))
     }
 
     public var menuActions: MenuActions {
