@@ -81,6 +81,7 @@ struct CSVExporterTests {
         ("=SUM(A1:A9)", "'=SUM(A1:A9)"),
         ("+1 call", "'+1 call"),
         ("@handle", "'@handle"),
+        ("-12.50", "-12.50"),
         ("-rm thing", "'-rm thing"),
         ("=1,2", "\"'=1,2\"")
     ])

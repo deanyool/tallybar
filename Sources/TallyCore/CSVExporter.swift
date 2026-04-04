@@ -61,7 +61,7 @@ enum CSVRow {
     /// is opened in a spreadsheet, so text cells starting with one get an apostrophe.
     static func field(_ value: String) -> String {
         var text = value
-        if let first = text.first, "=+-@\t\r".contains(first) {
+        if let first = text.first, "=+-@\t\r".contains(first), Double(text) == nil {
             text = "'" + text
         }
         guard text.contains(where: { ",\"\r\n".contains($0) }) else { return text }
