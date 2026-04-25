@@ -14,7 +14,7 @@ public extension Ledger {
     }
 
     mutating func updateClient(_ client: Client) {
-        guard let index = clients.firstIndex(where: {$0.id == client.id}) else { return }
+        guard let index = clients.firstIndex(where: { $0.id == client.id }) else { return }
         clients[index] = client
     }
 

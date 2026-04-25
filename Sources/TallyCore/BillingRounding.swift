@@ -17,7 +17,7 @@ public struct BillingRounding: Hashable, Codable, Sendable {
     }
 
     public func billable(seconds: Int) -> Int {
-        let step = incrementMinutes*60
+        let step = incrementMinutes * 60
         guard step > 0, seconds > 0 else { return max(0, seconds) }
         switch mode {
         case .up:

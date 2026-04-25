@@ -18,7 +18,7 @@ public enum DurationFormat {
     public static func words(_ seconds: Int) -> String {
         let total = max(0, seconds)
         let hours = total / 3600
-        let minutes = (total % 3600)/60
+        let minutes = total % 3600 / 60
         switch (hours, minutes) {
         case (0, 0): return "under 1m"
         case (0, _): return "\(minutes)m"
