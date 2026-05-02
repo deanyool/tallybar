@@ -4,6 +4,16 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] - 2026-05-02
+
+### Added
+
+- Billing rounding: exact, or to a chosen increment, nearest or always up.
+- Invoices mark their entries as billed, and billed time cannot be invoiced twice.
+- A session running past the end of an invoice period is split at the edge, so the
+  rest bills on the next invoice.
+- `--self-check` flag and `scripts/smoke-test.sh`.
+
 ## [0.5.0] - 2026-03-01
 
 ### Added
