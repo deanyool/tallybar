@@ -169,8 +169,12 @@ struct RunningCard: View {
                     .font(.system(size: 13, weight: .medium))
                     .lineLimit(1)
                 Spacer()
-                TimelineView(.periodic(from: running.start, by: 1)) { context in
-                    ElapsedText(seconds: running.elapsed(at: context.date))
+                if model.hasLiveClock {
+                    TimelineView(.periodic(from: running.start, by: 1)) { context in
+                        ElapsedText(seconds: running.elapsed(at: context.date))
+                    }
+                } else {
+                    ElapsedText(seconds: running.elapsed(at: model.now))
                 }
                 Button {
                     model.toggle(clientID: client.id)

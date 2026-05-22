@@ -15,6 +15,9 @@ public final class AppModel: ObservableObject {
     @Published public var problem: String?
 
     public let timeZone: TimeZone
+    public let locale: Locale
+    /// False for renders with a fixed date, where elapsed time must not follow the real clock.
+    public let hasLiveClock: Bool
     private let store: LedgerStore?
     private var idleMonitor: IdleMonitor
 
@@ -23,11 +26,20 @@ public final class AppModel: ObservableObject {
 
     /// - Parameter store: where to save. Nil keeps everything in memory, used for the
     ///   screenshots and for a data file this version must not touch.
-    public init(ledger: Ledger, store: LedgerStore?, now: Date, timeZone: TimeZone = .current) {
+    public init(
+        ledger: Ledger,
+        store: LedgerStore?,
+        now: Date,
+        timeZone: TimeZone = .current,
+        locale: Locale = .current,
+        hasLiveClock: Bool = true
+    ) {
         self.ledger = ledger
         self.store = store
         self.now = now
         self.timeZone = timeZone
+        self.locale = locale
+        self.hasLiveClock = hasLiveClock
         idleMonitor = IdleMonitor(threshold: TimeInterval(ledger.settings.idleThresholdMinutes * 60))
     }
 
@@ -160,7 +172,7 @@ public final class AppModel: ObservableObject {
 
     /// A money amount in the app's locale.
     public func text(for amount: Money) -> String {
-        amount.formatted()
+        amount.formatted(locale: locale)
     }
 
     /// Text for a set of per-currency amounts, such as "$412.50 + €90.00".
@@ -177,6 +189,7 @@ public final class AppModel: ObservableObject {
         let pdf = InvoicePDF(
             invoice: invoice,
             pageSize: ledger.settings.invoicePageSize,
+            locale: locale,
             timeZone: timeZone
         )
         try pdf.render().write(to: url, options: .atomic)
