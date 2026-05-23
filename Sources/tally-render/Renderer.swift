@@ -87,16 +87,23 @@ struct Renderer {
         try png.write(to: output.appending(path: "\(name).png"), options: .atomic)
     }
 
-    private func snapshot(_ view: some View, name: String, dark: Bool) throws {
+    private func snapshot(_ view: some View, name: String, dark: Bool, scale: CGFloat? = nil) throws {
         let root = view
             .background(Color(nsColor: .windowBackgroundColor))
             .environment(\.locale, SampleLedger.locale)
-            .environment(\.colorScheme, dark ? .dark : .light)
-        let renderer = ImageRenderer(content: root)
-        renderer.scale = 2
-        guard let image = renderer.nsImage, let tiff = image.tiffRepresentation,
-              let rep = NSBitmapImageRep(data: tiff),
-              let png = rep.representation(using: .png, properties: [:]) else { throw RenderError.badImage(name) }
+            .environment(\.timeZone, SampleLedger.timeZone)
+        let host = NSHostingView(rootView: root)
+        let size = host.fittingSize
+        host.frame = CGRect(origin: .zero, size: size)
+        let window = NSWindow(contentRect: host.frame, styleMask: [.borderless], backing: .buffered, defer: false)
+        window.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
+        window.contentView = host
+        host.layoutSubtreeIfNeeded()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.15))
+
+        guard let rep = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw RenderError.badImage(name) }
+        host.cacheDisplay(in: host.bounds, to: rep)
+        guard let png = rep.representation(using: .png, properties: [:]) else { throw RenderError.badImage(name) }
         try png.write(to: output.appending(path: "\(name).png"), options: .atomic)
     }
 }
