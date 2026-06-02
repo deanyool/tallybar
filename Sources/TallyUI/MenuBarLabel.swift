@@ -18,8 +18,15 @@ public struct MenuBarLabel: View {
                 Image(systemName: "timer")
             }
             .labelStyle(.titleAndIcon)
+            .accessibilityLabel(runningDescription(running))
         } else {
             Image(systemName: "timer")
+                .accessibilityLabel("TallyBar, not tracking")
         }
+    }
+
+    private func runningDescription(_ running: RunningSession) -> String {
+        let elapsed = DurationFormat.words(running.elapsed(at: model.now))
+        return "TallyBar, tracking \(model.runningClient?.name ?? "a client"), \(elapsed)"
     }
 }

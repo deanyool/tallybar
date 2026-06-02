@@ -111,6 +111,7 @@ private struct FooterButton: View {
         .buttonStyle(.plain)
         .foregroundStyle(.secondary)
         .help(title)
+        .accessibilityLabel(title)
         .onHover { isHovered = $0 }
     }
 }
@@ -144,6 +145,8 @@ struct SummaryHeader: View {
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
             }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(accessibilitySummary)
             Spacer()
         }
     }
@@ -152,6 +155,11 @@ struct SummaryHeader: View {
         let earned = model.text(for: model.todayEarnings)
         let time = "Today \(DurationFormat.clock(model.todaySeconds))"
         return earned.isEmpty ? time : "\(time) · \(earned)"
+    }
+
+    private var accessibilitySummary: String {
+        "\(DurationFormat.words(model.weekSeconds)) this week, "
+            + "\(DurationFormat.words(model.todaySeconds)) today"
     }
 }
 
@@ -186,6 +194,7 @@ struct RunningCard: View {
                         .background(Color.red.opacity(0.85), in: Circle())
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel("Stop tracking \(client.name)")
             }
             TextField("What are you working on?", text: noteBinding)
                 .textFieldStyle(.plain)
@@ -210,5 +219,6 @@ private struct ElapsedText: View {
         Text(DurationFormat.clockWithSeconds(seconds))
             .font(.system(size: 15, weight: .semibold, design: .rounded))
             .monospacedDigit()
+            .accessibilityLabel("Elapsed \(DurationFormat.words(seconds))")
     }
 }

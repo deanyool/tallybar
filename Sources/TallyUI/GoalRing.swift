@@ -23,5 +23,14 @@ public struct GoalRing: View {
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .monospacedDigit()
         }
+        .accessibilityElement()
+        .accessibilityLabel("Weekly goal")
+        .accessibilityValue(accessibilityValue)
+    }
+
+    private var accessibilityValue: String {
+        goal.isMet
+            ? "Goal met, \(goal.percent) percent"
+            : "\(goal.percent) percent, \(DurationFormat.words(goal.remainingSeconds)) to go"
     }
 }

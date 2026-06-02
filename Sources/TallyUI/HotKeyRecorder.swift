@@ -13,6 +13,8 @@ struct HotKeyRecorder: View {
         HStack(spacing: 6) {
             Button(title, action: toggleRecording)
                 .monospaced()
+                .accessibilityLabel("Global shortcut")
+                .accessibilityValue(combo?.displayString ?? "none")
             if combo != nil, !isRecording {
                 Button {
                     combo = nil
@@ -21,6 +23,7 @@ struct HotKeyRecorder: View {
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(.secondary)
+                .accessibilityLabel("Clear shortcut")
             }
         }
         .onDisappear(perform: stopRecording)

@@ -40,5 +40,15 @@ struct ClientRow: View {
         }
         .buttonStyle(.plain)
         .onHover { isHovered = $0 }
+        .accessibilityLabel(accessibilityText)
+        .accessibilityHint(isRunning ? "Stops the timer" : "Starts the timer")
+    }
+
+    private var accessibilityText: String {
+        var text = client.name
+        if todaySeconds > 0 {
+            text += ", \(DurationFormat.words(todaySeconds)) today"
+        }
+        return isRunning ? "\(text), tracking" : text
     }
 }

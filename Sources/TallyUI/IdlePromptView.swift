@@ -21,6 +21,7 @@ public struct IdlePromptView: View {
                 Image(systemName: "moon.zzz.fill")
                     .font(.system(size: 26))
                     .foregroundStyle(Theme.accent)
+                    .accessibilityHidden(true)
                 VStack(alignment: .leading, spacing: 3) {
                     Text("You were away \(DurationFormat.words(away.seconds))")
                         .font(.headline)

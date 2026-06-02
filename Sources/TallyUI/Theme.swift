@@ -32,5 +32,6 @@ struct ClientDot: View {
         Circle()
             .fill(Theme.color(for: client))
             .frame(width: 9, height: 9)
+            .accessibilityHidden(true)
     }
 }

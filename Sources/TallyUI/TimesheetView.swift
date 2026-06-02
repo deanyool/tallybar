@@ -154,6 +154,8 @@ private struct TimesheetRowView: View {
             Button("Delete", role: .destructive, action: delete)
                 .disabled(row.entry.isInvoiced)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityAction(named: "Edit", edit)
         .alert("Can't change this entry", isPresented: isShowingProblem, presenting: showProblem) { _ in
             Button("OK", role: .cancel) {}
         } message: { Text($0) }
