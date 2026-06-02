@@ -79,7 +79,9 @@ struct Renderer {
     }
 
     private func rasterize(pdf data: Data, name: String) throws {
-        guard let page = PDFDocument(data: data)?.page(at: 0) else { throw RenderError.badPDF }
+        guard let document = PDFDocument(data: data), let page = document.page(at: 0) else {
+            throw RenderError.badPDF
+        }
         let bounds = page.bounds(for: .mediaBox)
         let image = page.thumbnail(of: CGSize(width: bounds.width * 2, height: bounds.height * 2), for: .mediaBox)
         guard let tiff = image.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff),
