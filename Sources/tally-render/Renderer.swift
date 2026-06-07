@@ -32,6 +32,7 @@ struct Renderer {
             name: "settings",
             dark: true
         )
+        try snapshot(AppIconArt(), name: "app-icon", dark: false, scale: 1)
         try renderInvoice(ledger)
         try renderCSV(ledger)
     }
@@ -105,6 +106,9 @@ struct Renderer {
 
         guard let rep = host.bitmapImageRepForCachingDisplay(in: host.bounds) else { throw RenderError.badImage(name) }
         host.cacheDisplay(in: host.bounds, to: rep)
+        if let scale {
+            rep.size = CGSize(width: size.width * scale, height: size.height * scale)
+        }
         guard let png = rep.representation(using: .png, properties: [:]) else { throw RenderError.badImage(name) }
         try png.write(to: output.appending(path: "\(name).png"), options: .atomic)
     }

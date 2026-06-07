@@ -19,6 +19,7 @@ app="$output/TallyBar.app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
 cp "$binary" "$app/Contents/MacOS/TallyBar"
 sed "s/__VERSION__/$version/g" Resources/Info.plist > "$app/Contents/Info.plist"
+cp Resources/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
 printf 'APPL????' > "$app/Contents/PkgInfo"
 
 # Ad-hoc signature. Launch at Login and the hardened system frameworks need a signed
