@@ -62,7 +62,7 @@ public struct LedgerStore: Sendable {
     public func save(_ ledger: Ledger) throws {
         let manager = FileManager.default
         try manager.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        if manager.fileExists(atPath: url.path) {
+        if manager.fileExists(atPath: url.path), (try? decode(url)) != nil {
             let previous = try Data(contentsOf: url)
             try previous.write(to: backupURL, options: .atomic)
         }

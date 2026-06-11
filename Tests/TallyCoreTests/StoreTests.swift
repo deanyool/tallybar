@@ -103,6 +103,18 @@ struct StoreTests {
         #expect(FileManager.default.fileExists(atPath: quarantined.path))
     }
 
+    @Test func savingOverACorruptFileDoesNotClobberTheBackup() throws {
+        let store = store()
+        var ledger = Ledger()
+        ledger.addClient(name: "Good", hourlyRate: 10)
+        try store.save(ledger)
+        try store.save(ledger)
+        try Data("garbage".utf8).write(to: store.url)
+        try store.save(ledger)
+        let backup = try JSONDecoder.forTests.decode(Ledger.self, from: Data(contentsOf: store.backupURL))
+        #expect(backup.clients.first?.name == "Good")
+    }
+
     @Test func refusesFilesFromTheFuture() throws {
         let store = store()
         var ledger = Ledger()
