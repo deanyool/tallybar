@@ -1,0 +1,10 @@
+date,start,end,hours,duration,client,note,rate,amount,currency,invoice
+2025-10-06,2025-10-06T09:05:00-04:00,2025-10-06T11:40:00-04:00,2.58,2:35,Lumen Coffee Roasters,Packaging concepts,120.00,310.00,USD,
+2025-10-06,2025-10-06T13:00:00-04:00,2025-10-06T15:30:00-04:00,2.50,2:30,Harbor & Pine Studio,Homepage layout,95.00,237.50,USD,
+2025-10-07,2025-10-07T10:00:00-04:00,2025-10-07T12:15:00-04:00,2.25,2:15,Lumen Coffee Roasters,Packaging concepts,120.00,270.00,USD,
+2025-10-08,2025-10-08T14:00:00-04:00,2025-10-08T15:45:00-04:00,1.75,1:45,Tidewater Books,Catalog grid,85.00,148.75,USD,
+2025-10-14,2025-10-14T09:30:00-04:00,2025-10-14T12:30:00-04:00,3.00,3:00,Lumen Coffee Roasters,Label artwork,120.00,360.00,USD,
+2025-10-15,2025-10-15T22:30:00-04:00,2025-10-16T00:00:00-04:00,1.50,1:30,Lumen Coffee Roasters,Print proofs,120.00,180.00,USD,
+2025-10-16,2025-10-16T00:00:00-04:00,2025-10-16T00:45:00-04:00,0.75,0:45,Lumen Coffee Roasters,Print proofs,120.00,90.00,USD,
+2025-10-21,2025-10-21T09:00:00-04:00,2025-10-21T11:30:00-04:00,2.50,2:30,Lumen Coffee Roasters,Label artwork,120.00,300.00,USD,
+2025-10-28,2025-10-28T13:15:00-04:00,2025-10-28T16:00:00-04:00,2.75,2:45,Lumen Coffee Roasters,Website photography brief,120.00,330.00,USD,
