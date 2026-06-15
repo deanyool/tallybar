@@ -4,6 +4,23 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] - 2026-06-14
+
+### Added
+
+- App icon.
+- Accessibility labels across the menu panel, timesheet and prompts.
+- Offscreen renderer for the README screenshots and sample files.
+- Full README, architecture notes and data format reference.
+
+### Changed
+
+- Adopted the Swift 6 language mode.
+
+### Fixed
+
+- A damaged data file can no longer replace the last good backup.
+
 ## [0.6.0] - 2026-05-02
 
 ### Added
