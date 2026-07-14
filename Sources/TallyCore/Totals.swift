@@ -17,13 +17,16 @@ public extension Ledger {
         }
     }
 
-    /// Earnings inside `interval`.
+    /// Earnings inside `interval`, one `Money` per currency because clients can be billed
+    /// in different currencies and those totals must never be added together.
     func earnings(in interval: DateInterval, at now: Date) -> [Money] {
-        var total = Decimal(0)
+        var totals: [String: Money] = [:]
         for client in clients {
             let seconds = seconds(in: interval, clientID: client.id, at: now)
-            total += client.hourlyRate.earned(seconds: seconds).amount
+            guard seconds > 0 else { continue }
+            let earned = client.hourlyRate.earned(seconds: seconds)
+            totals[earned.currency] = (totals[earned.currency] ?? .zero(earned.currency)) + earned
         }
-        return total > 0 ? [Money(total, currency: settings.defaultCurrency)] : []
+        return totals.values.sorted { $0.currency < $1.currency }
     }
 }

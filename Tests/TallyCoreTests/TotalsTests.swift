@@ -55,6 +55,16 @@ struct TotalsTests {
         #expect(ledger.seconds(in: day, at: now) == 25 * 3600)
     }
 
+    @Test func earningsStayInTheirOwnCurrency() {
+        var (ledger, client) = Fixtures.ledger(rate: 100)
+        let euro = ledger.addClient(name: "Euro Co", hourlyRate: 80, currency: "EUR")
+        add(&ledger, client, "2025-10-15T09:00:00-04:00", "2025-10-15T10:00:00-04:00")
+        add(&ledger, euro, "2025-10-15T10:00:00-04:00", "2025-10-15T10:30:00-04:00")
+        let now = Fixtures.at("2025-10-15T12:00:00-04:00")
+        let earnings = ledger.earnings(in: calendar.dayInterval(containing: now), at: now)
+        #expect(earnings == [Money(40, currency: "EUR"), Money(100, currency: "USD")])
+    }
+
     @Test func noTimeMeansNoEarningsRows() {
         let (ledger, _) = Fixtures.ledger()
         let now = Fixtures.at("2025-10-15T12:00:00-04:00")
