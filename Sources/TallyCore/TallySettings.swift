@@ -2,6 +2,7 @@ import Foundation
 
 public enum InvoicePageSize: String, Hashable, Codable, Sendable, CaseIterable {
     case letter
+    case a4
 }
 
 public struct TallySettings: Equatable, Sendable {

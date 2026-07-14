@@ -34,6 +34,7 @@ public extension InvoicePageSize {
     var size: CGSize {
         switch self {
         case .letter: return CGSize(width: 612, height: 792)
+        case .a4: return CGSize(width: 595.28, height: 841.89)
         }
     }
 }

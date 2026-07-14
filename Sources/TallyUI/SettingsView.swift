@@ -247,6 +247,7 @@ public struct InvoiceSettingsView: View {
                 TextField("Invoice prefix", text: model.binding(\.invoicePrefix))
                 Picker("Page size", selection: model.binding(\.invoicePageSize)) {
                     Text("US Letter").tag(InvoicePageSize.letter)
+                    Text("A4").tag(InvoicePageSize.a4)
                 }
             }
         }

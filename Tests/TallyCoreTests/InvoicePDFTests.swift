@@ -58,6 +58,15 @@ struct InvoicePDFTests {
         #expect(!text(of: document).contains("Tax ("))
     }
 
+    @Test func letterAndA4HaveTheirRealPageSizes() throws {
+        let invoice = try invoice(days: 1)
+        let letter = try render(invoice).page(at: 0)?.bounds(for: .mediaBox)
+        let a4 = try render(invoice, pageSize: .a4).page(at: 0)?.bounds(for: .mediaBox)
+        #expect(letter?.size == CGSize(width: 612, height: 792))
+        #expect(a4?.width.rounded() == 595)
+        #expect(a4?.height.rounded() == 842)
+    }
+
     @Test func longInvoicesPaginateAndKeepTheTotalAtTheEnd() throws {
         let document = try render(try invoice(days: 60))
         #expect(document.pageCount > 1)

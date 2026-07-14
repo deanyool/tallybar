@@ -115,7 +115,7 @@ draws the real views and the real invoice renderer. Nothing is mocked up.
 | Default tax % | 0 | Prefills the invoice screen. |
 | Payment terms | 30 days | Sets the due date. |
 | Invoice prefix | `INV-` | Numbers run `INV-0001`, `INV-0002`, and so on. |
-| Page size | US Letter | US Letter only for now. |
+| Page size | US Letter | US Letter or A4. |
 
 One environment variable is read at launch:
 
