@@ -31,7 +31,7 @@ makes no network connections at all.
   needs no Accessibility permission.
 - **Idle detection.** "You were away 23m. Keep or discard?" Sleep and wake are covered,
   and so is a crash or power cut.
-- **Rates and totals.** Per-client hourly rates, daily and weekly totals,
+- **Rates and totals.** Per-client hourly rates and currencies, daily and weekly totals,
   and a weekly goal ring.
 - **PDF invoices.** Drawn natively, with pagination, tax, payment terms and your details.
 - **CSV export.** Correct quoting, spreadsheet formula protection, and timestamps that

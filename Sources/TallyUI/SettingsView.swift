@@ -151,6 +151,7 @@ private struct ClientEditorRow: View {
         DisclosureGroup(isExpanded: $isExpanded) {
             TextField("Name", text: field(\.name))
             TextField("Hourly rate", value: amountBinding, format: .number)
+            TextField("Currency", text: currencyBinding)
             TextField("Billing address", text: field(\.billingAddress), axis: .vertical)
                 .lineLimit(2...4)
             Button("Archive") {
@@ -188,6 +189,19 @@ private struct ClientEditorRow: View {
                 MainActor.assumeIsolated {
                     var copy = client
                     copy.hourlyRate.amount = value
+                    model.update { $0.updateClient(copy) }
+                }
+            }
+        )
+    }
+
+    private var currencyBinding: Binding<String> {
+        Binding(
+            get: { client.hourlyRate.currency },
+            set: { [client, model] value in
+                MainActor.assumeIsolated {
+                    var copy = client
+                    copy.hourlyRate.currency = value.uppercased()
                     model.update { $0.updateClient(copy) }
                 }
             }
