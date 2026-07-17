@@ -43,6 +43,21 @@ struct MoneyTests {
         #expect(Money(Decimal(string: "133.33")!).earned(seconds: 135_000).amount == Decimal(string: "4999.88")!)
     }
 
+    @Test(arguments: [
+        ("USD", 2),
+        ("jpy", 0),
+        ("KWD", 3),
+        ("CAD", 2)
+    ])
+    func minorUnits(code: String, digits: Int) {
+        #expect(Money.minorUnits(for: code) == digits)
+    }
+
+    @Test func zeroDecimalCurrencyRoundsToWholeUnits() {
+        #expect(Money(10000, currency: "JPY").earned(seconds: 1000).amount == 2778)
+        #expect(Money(10000, currency: "JPY").earned(seconds: 1000).plainString == "2778")
+    }
+
     @Test func formatsForTheGivenLocale() {
         #expect(Money(Decimal(string: "1250.5")!).formatted(locale: Locale(identifier: "en_US")) == "$1,250.50")
     }

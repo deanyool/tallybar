@@ -15,9 +15,17 @@ public struct Money: Hashable, Sendable {
         Money(0, currency: currency)
     }
 
-    /// Fraction digits used by the currency.
+    /// Fraction digits used by the currency: 2 for USD, 0 for JPY, 3 for KWD.
     public static func minorUnits(for currency: String) -> Int {
-        2
+        switch currency.uppercased() {
+        case "BIF", "CLP", "DJF", "GNF", "ISK", "JPY", "KMF", "KRW", "PYG", "RWF",
+             "UGX", "VND", "VUV", "XAF", "XOF", "XPF":
+            return 0
+        case "BHD", "IQD", "JOD", "KWD", "LYD", "OMR", "TND":
+            return 3
+        default:
+            return 2
+        }
     }
 
     /// The same amount rounded half-up to the currency's minor unit.
