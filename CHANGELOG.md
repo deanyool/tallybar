@@ -4,6 +4,17 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-07-26
+
+### Added
+
+- A4 invoices.
+- Per-client currency, including zero and three decimal currencies.
+
+### Fixed
+
+- Today's earnings no longer add different currencies together.
+
 ## [1.0.0] - 2026-06-14
 
 ### Added

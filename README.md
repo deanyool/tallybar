@@ -74,7 +74,7 @@ $ scripts/smoke-test.sh dist/TallyBar.app
   "isAppBundle" : true,
   "launchAtLoginStatus" : "notFound",
   "ok" : true,
-  "version" : "1.0.0"
+  "version" : "1.1.0"
 }
 Smoke test passed
 ```
