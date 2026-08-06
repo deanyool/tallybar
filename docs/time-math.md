@@ -36,7 +36,7 @@ toward both weeks.
 An amount is `rate × seconds ÷ 3600`, rounded half-up to the currency's minor unit. The
 two decimal hours printed on an invoice are for reading. 20 minutes at $100 an hour is
 $33.33, not 0.33 × 100. Each line is rounded once, and the subtotal is the sum of the
-rounded lines, so the printed column allways adds up.
+rounded lines, so the printed column always adds up.
 
 Billing rounding, when turned on, applies to each piece of work on each day before
 pricing. Two 5 minute calls rounded up to 15 minute increments bill 30 minutes.
