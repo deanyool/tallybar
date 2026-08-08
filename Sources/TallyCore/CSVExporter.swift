@@ -4,9 +4,12 @@ public struct CSVOptions: Sendable {
     /// Writes one row per local day, so a session crossing midnight is two rows and
     /// a pivot table by date adds up to the same daily totals as the app.
     public var splitAtMidnight: Bool
+    /// Starts the file with a UTF-8 byte order mark, which Excel needs to read accents.
+    public var excelCompatible: Bool
 
-    public init(splitAtMidnight: Bool = true) {
+    public init(splitAtMidnight: Bool = true, excelCompatible: Bool = false) {
         self.splitAtMidnight = splitAtMidnight
+        self.excelCompatible = excelCompatible
     }
 }
 
@@ -47,7 +50,8 @@ public extension Ledger {
                 ])
             }
         }
-        return rows.map { $0.map(CSVRow.field).joined(separator: ",") + "\r\n" }.joined()
+        let body = rows.map { $0.map(CSVRow.field).joined(separator: ",") + "\r\n" }.joined()
+        return options.excelCompatible ? "\u{FEFF}" + body : body
     }
 }
 

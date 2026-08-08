@@ -89,6 +89,12 @@ struct CSVExporterTests {
         #expect(CSVRow.field(input) == expected)
     }
 
+    @Test func excelModeStartsWithAByteOrderMark() {
+        let (ledger, _) = Fixtures.ledger()
+        let csv = ledger.csv(in: october, options: CSVOptions(excelCompatible: true), calendar: calendar)
+        #expect(csv.unicodeScalars.first == "\u{FEFF}")
+    }
+
     @Test func showsTheInvoiceNumber() {
         var (ledger, client) = Fixtures.ledger()
         ledger.entries = [TimeEntry(
