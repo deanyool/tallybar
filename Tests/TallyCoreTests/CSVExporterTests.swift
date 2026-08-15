@@ -78,6 +78,7 @@ struct CSVExporterTests {
         ("plain", "plain"),
         ("a,b", "\"a,b\""),
         ("say \"hi\"", "\"say \"\"hi\"\"\""),
+        ("two\nlines", "\"two\nlines\""),
         ("=SUM(A1:A9)", "'=SUM(A1:A9)"),
         ("+1 call", "'+1 call"),
         ("@handle", "'@handle"),

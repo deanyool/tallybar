@@ -65,14 +65,18 @@ enum CSVRow {
         "rate", "amount", "currency", "invoice"
     ]
 
+    private static let formulaStarters: Set<Unicode.Scalar> = ["=", "+", "-", "@", "\t", "\r"]
+    private static let needsQuotes: Set<Unicode.Scalar> = [",", "\"", "\r", "\n"]
+
     /// Quotes when needed. A leading =, +, - or @ would run as a formula when the file
     /// is opened in a spreadsheet, so text cells starting with one get an apostrophe.
     static func field(_ value: String) -> String {
         var text = value
-        if let first = text.first, "=+-@\t\r".contains(first), Double(text) == nil {
+        if let first = text.unicodeScalars.first, formulaStarters.contains(first), Double(text) == nil {
             text = "'" + text
         }
-        guard text.contains(where: { ",\"\r\n".contains($0) }) else { return text }
+        // Scalars, not Characters: "\r\n" is a single Character, so a search for "\n" misses it.
+        guard text.unicodeScalars.contains(where: needsQuotes.contains) else { return text }
         return "\"" + text.replacingOccurrences(of: "\"", with: "\"\"") + "\""
     }
 }
