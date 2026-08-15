@@ -6,10 +6,13 @@ public struct CSVOptions: Sendable {
     public var splitAtMidnight: Bool
     /// Starts the file with a UTF-8 byte order mark, which Excel needs to read accents.
     public var excelCompatible: Bool
+    /// Applies the billing rounding setting to hours and amounts.
+    public var applyRounding: Bool
 
-    public init(splitAtMidnight: Bool = true, excelCompatible: Bool = false) {
+    public init(splitAtMidnight: Bool = true, excelCompatible: Bool = false, applyRounding: Bool = false) {
         self.splitAtMidnight = splitAtMidnight
         self.excelCompatible = excelCompatible
+        self.applyRounding = applyRounding
     }
 }
 
@@ -34,7 +37,8 @@ public extension Ledger {
                 ? calendar.daySlices(from: entry.start, to: entry.end).map { ($0.start, $0.end) }
                 : [(entry.start, entry.end)]
             for (start, end) in slices {
-                let seconds = TimeEntry(clientID: client.id, start: start, end: end).seconds
+                let tracked = TimeEntry(clientID: client.id, start: start, end: end).seconds
+                let seconds = options.applyRounding ? settings.billingRounding.billable(seconds: tracked) : tracked
                 rows.append([
                     timestamps.date(start),
                     timestamps.instant(start),

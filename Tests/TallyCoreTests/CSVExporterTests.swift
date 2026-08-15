@@ -95,6 +95,21 @@ struct CSVExporterTests {
         #expect(csv.unicodeScalars.first == "\u{FEFF}")
     }
 
+    @Test func roundingOptionChangesHoursAndAmounts() {
+        var (ledger, client) = Fixtures.ledger()
+        ledger.settings.billingRounding = BillingRounding(incrementMinutes: 15, mode: .up)
+        ledger.entries = [TimeEntry(
+            clientID: client.id,
+            start: Fixtures.at("2025-10-06T09:00:00-04:00"),
+            end: Fixtures.at("2025-10-06T09:05:00-04:00")
+        )]
+        let exact = rows(ledger.csv(in: october, calendar: calendar))[1]
+        let rounded = rows(ledger.csv(in: october, options: CSVOptions(applyRounding: true), calendar: calendar))[1]
+        #expect(exact.contains(",0.08,0:05,"))
+        #expect(rounded.contains(",0.25,0:15,"))
+        #expect(rounded.contains(",25.00,USD"))
+    }
+
     @Test func showsTheInvoiceNumber() {
         var (ledger, client) = Fixtures.ledger()
         ledger.entries = [TimeEntry(

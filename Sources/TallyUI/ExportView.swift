@@ -26,6 +26,7 @@ public struct ExportView: View {
                     ForEach(model.ledger.clients) { Text($0.name).tag(UUID?.some($0.id)) }
                 }
                 Toggle("Split sessions at midnight", isOn: $options.splitAtMidnight)
+                Toggle("Use billing rounding", isOn: $options.applyRounding)
                 Toggle("Excel compatible", isOn: $options.excelCompatible)
             }
             .formStyle(.grouped)
