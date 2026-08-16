@@ -4,6 +4,17 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-08-16
+
+### Added
+
+- Excel compatible option for CSV export.
+- Option to apply billing rounding to CSV export.
+
+### Fixed
+
+- Notes containing a line break no longer break CSV rows.
+
 ## [1.1.0] - 2026-07-26
 
 ### Added
