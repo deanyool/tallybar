@@ -4,6 +4,7 @@ import Foundation
 public enum EntryProblem: Error, Equatable, Sendable {
     case endNotAfterStart
     case unknownClient
+    case overlaps(TimeEntry)
     case alreadyInvoiced(String)
 }
 
@@ -14,6 +15,8 @@ extension EntryProblem: CustomStringConvertible {
             return "The end time must be after the start time."
         case .unknownClient:
             return "That client no longer exists."
+        case .overlaps:
+            return "This overlaps another entry."
         case .alreadyInvoiced(let number):
             return "This entry was billed on invoice \(number)."
         }
@@ -26,12 +29,18 @@ public extension Ledger {
         entries.sorted { $0.start > $1.start }
     }
 
-    /// Checks a new or edited entry.
+    /// Checks a new or edited entry. Overlaps are refused because they double-bill.
     func validate(_ entry: TimeEntry) throws {
         guard entry.end > entry.start else { throw EntryProblem.endNotAfterStart }
         guard client(id: entry.clientID) != nil else { throw EntryProblem.unknownClient }
         if let number = entries.first(where: { $0.id == entry.id })?.invoiceNumber {
             throw EntryProblem.alreadyInvoiced(number)
+        }
+        let clash = entries.first {
+            $0.id != entry.id && $0.start < entry.end && entry.start < $0.end
+        }
+        if let clash {
+            throw EntryProblem.overlaps(clash)
         }
     }
 

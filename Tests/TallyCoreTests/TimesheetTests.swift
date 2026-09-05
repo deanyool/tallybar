@@ -88,6 +88,15 @@ struct EntryEditingTests {
         }
     }
 
+    @Test func refusesOverlaps() throws {
+        var (ledger, client) = Fixtures.ledger()
+        let first = TimeEntry(clientID: client.id, start: nine, end: eleven)
+        try ledger.save(first)
+        #expect(throws: EntryProblem.overlaps(first)) {
+            try ledger.save(TimeEntry(clientID: client.id, start: ten, end: eleven.addingTimeInterval(60)))
+        }
+    }
+
     @Test func touchingEntriesAreNotAnOverlap() throws {
         var (ledger, client) = Fixtures.ledger()
         try ledger.save(TimeEntry(clientID: client.id, start: nine, end: ten))
