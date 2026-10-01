@@ -128,8 +128,10 @@ public final class AppModel: ObservableObject {
         update { $0.toggle(at: now) }
     }
 
+    /// Acting on the timer answers any open question about away time: it stays counted.
     private func noteManualAction(at now: Date) {
         self.now = now
+        pendingAway = nil
         idleMonitor.reset()
     }
 

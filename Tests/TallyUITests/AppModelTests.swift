@@ -96,6 +96,17 @@ struct AppModelTests {
         #expect(model.pendingAway == nil)
     }
 
+    @Test func stoppingWhileThePromptIsOpenClosesItAndKeepsTheTime() {
+        let (model, client) = makeModel()
+        model.toggle(clientID: client.id, at: t0)
+        model.tick(now: t0.addingTimeInterval(600), idleSeconds: 500)
+        model.tick(now: t0.addingTimeInterval(1000), idleSeconds: 1)
+        #expect(model.pendingAway != nil)
+        model.toggle(at: t0.addingTimeInterval(1020))
+        #expect(model.pendingAway == nil)
+        #expect(model.ledger.entries.first?.seconds == 1020)
+    }
+
     @Test func heartbeatAdvancesWhileWorking() throws {
         let (model, client) = makeModel()
         model.toggle(clientID: client.id, at: t0)
