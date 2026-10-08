@@ -79,8 +79,13 @@ public struct InvoicePDF {
         "\(date(invoice.period.start)) to \(date(invoice.period.end.addingTimeInterval(-1)))"
     }
 
+    /// The description as printed. One row must fit on a page, so a runaway note is cut.
+    private func descriptionText(_ line: InvoiceLine) -> String {
+        line.description.count > 600 ? line.description.prefix(600) + "…" : line.description
+    }
+
     private func rowHeight(_ line: InvoiceLine) -> CGFloat {
-        PDFCanvas.height(of: line.description, font: InvoiceStyle.body, width: columns.description.width)
+        PDFCanvas.height(of: descriptionText(line), font: InvoiceStyle.body, width: columns.description.width)
             + 2 * InvoiceStyle.rowPadding
     }
 
@@ -148,7 +153,7 @@ public struct InvoicePDF {
                 canvas.draw(text, left: column.minX, top: textTop, width: column.width, font: InvoiceStyle.body, alignment: alignment)
             }
             cell(line.date.map(date) ?? "", columns.date)
-            cell(line.description, columns.description)
+            cell(descriptionText(line), columns.description)
             cell(line.hours, columns.hours, .right)
             cell(money(line.rate), columns.rate, .right)
             cell(money(line.amount), columns.amount, .right)

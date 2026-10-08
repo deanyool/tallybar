@@ -98,6 +98,13 @@ struct InvoicePDFTests {
         #expect(text.contains("word40"))
     }
 
+    @Test func aRunawayNoteIsCutToFitOnePage() throws {
+        let huge = String(repeating: "A very long note that keeps going. ", count: 400)
+        let document = try render(try invoice(days: 1, note: huge))
+        #expect(document.pageCount == 1)
+        #expect(text(of: document).contains("…"))
+    }
+
     @Test func carriesDocumentMetadata() throws {
         let attributes = try render(try invoice(days: 1)).documentAttributes
         #expect(attributes?[PDFDocumentAttribute.titleAttribute] as? String == "Invoice INV-0042")
