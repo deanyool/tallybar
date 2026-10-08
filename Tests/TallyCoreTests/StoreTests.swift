@@ -136,6 +136,13 @@ struct StoreTests {
         #expect(settings.hotKey == .standard)
     }
 
+    @Test func olderFilesAreUpgradedOnLoad() throws {
+        let store = store()
+        try FileManager.default.createDirectory(at: store.url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try Data(#"{"version": 1}"#.utf8).write(to: store.url)
+        #expect(try store.load().ledger.version == Ledger.currentVersion)
+    }
+
     @Test func defaultLocationIsApplicationSupport() {
         #expect(LedgerStore.defaultURL.path.hasSuffix("Application Support/TallyBar/ledger.json"))
     }

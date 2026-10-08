@@ -71,10 +71,11 @@ public struct LedgerStore: Sendable {
 
     private func decode(_ source: URL) throws -> Ledger {
         let data = try Data(contentsOf: source)
-        let ledger = try LedgerStore.decoder.decode(Ledger.self, from: data)
+        var ledger = try LedgerStore.decoder.decode(Ledger.self, from: data)
         guard ledger.version <= Ledger.currentVersion else {
             throw LedgerStoreError.newerVersion(found: ledger.version, supported: Ledger.currentVersion)
         }
+        ledger.version = Ledger.currentVersion
         return ledger
     }
 
