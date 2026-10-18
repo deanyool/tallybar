@@ -155,6 +155,8 @@ More detail:
   the mouse counts as idle. That is what Keep is for.
 - **Hotkey labels assume an ANSI layout.** The shortcut works on any layout, but the
   letter shown is the US key at that physical position.
+- **Display follows your current time zone.** Entries store instants, not the zone you
+  worked in, so durations never change, but a trip abroad shifts how old days are grouped.
 
 ## Contributing
 
