@@ -4,6 +4,18 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-10-17
+
+### Added
+
+- Manual entries and edits now refuse overlaps with existing time.
+
+### Fixed
+
+- A very long note no longer overflows its invoice row past the page footer.
+- Stopping the timer while the "you were away" prompt is open closes the prompt.
+- Older data files are stamped with the current version when loaded.
+
 ## [1.2.0] - 2026-08-16
 
 ### Added
