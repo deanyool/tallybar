@@ -47,6 +47,7 @@ See [docs/architecture.md](docs/architecture.md) for how the pieces fit.
 - If it touches time, add a test that runs across a daylight saving change.
 - New settings must decode from older files. Add them to the custom `Codable` in
   `TallySettings` with a default.
+- Nothing goes on the network. That is the point of the app.
 
 ## Before opening a pull request
 
