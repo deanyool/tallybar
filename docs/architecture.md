@@ -65,4 +65,9 @@ after a crash or power loss the next launch finds it still running, sees the las
 heartbeat was a while ago, and asks about the gap exactly as if the person had walked
 away.
 
-See [data-format.md](data-format.md).
+## Why not SwiftData
+
+A single JSON file is the simplest thing that meets the requirements. It is testable
+from Swift Package Manager with no container setup, readable by people, easy to back
+up, and a freelancer's ledger is small enough that rewriting it is instant. See
+[data-format.md](data-format.md).
