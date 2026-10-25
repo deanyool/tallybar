@@ -28,8 +28,7 @@ public struct SettingsView: View {
 public struct GeneralSettingsView: View {
     @ObservedObject var model: AppModel
     let launchAtLogin: LaunchAtLoginControl
-    @State private var launches = false
-    @State private var launchProblem: String?
+    @State private var launch = LaunchAtLoginState()
 
     public init(model: AppModel, launchAtLogin: LaunchAtLoginControl) {
         self.model = model
@@ -66,33 +65,25 @@ public struct GeneralSettingsView: View {
                 Toggle("Launch at login", isOn: launchBinding)
                     .disabled(!launchAtLogin.isAvailable)
                 if !launchAtLogin.isAvailable {
-                    Text("Available when running the built TallyBar.app.")
+                    Text(LaunchAtLoginState.unavailableMessage)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                if let launchProblem {
-                    Text(launchProblem)
+                if let problem = launch.problem {
+                    Text(problem)
                         .font(.caption)
                         .foregroundStyle(.red)
                 }
             }
         }
         .formStyle(.grouped)
-        .onAppear { launches = launchAtLogin.isEnabled() }
+        .onAppear { launch.refresh(using: launchAtLogin) }
     }
 
     private var launchBinding: Binding<Bool> {
         Binding(
-            get: { launches },
-            set: { newValue in
-                do {
-                    try launchAtLogin.setEnabled(newValue)
-                    launches = launchAtLogin.isEnabled()
-                    launchProblem = nil
-                } catch {
-                    launchProblem = error.localizedDescription
-                }
-            }
+            get: { launch.isOn },
+            set: { launch.set($0, using: launchAtLogin) }
         )
     }
 }
@@ -118,15 +109,15 @@ public struct ClientsSettingsView: View {
                 TextField("Name", text: $newName)
                 TextField("Hourly rate", value: $newRate, format: .number)
                 Button("Add Client", action: add)
-                    .disabled(newName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(!model.canAddClient(name: newName, hourlyRate: newRate))
             }
-            let archived = model.ledger.clients.filter(\.isArchived)
+            let archived = model.archivedClients
             if !archived.isEmpty {
                 Section("Archived") {
                     ForEach(archived) { client in
                         LabeledContent(client.name) {
                             Button("Restore") {
-                                model.update { $0.unarchiveClient(id: client.id) }
+                                model.restoreClient(id: client.id)
                             }
                         }
                     }
@@ -137,8 +128,9 @@ public struct ClientsSettingsView: View {
     }
 
     private func add() {
-        model.update { $0.addClient(name: newName, hourlyRate: newRate) }
-        newName = ""
+        if model.addClient(name: newName, hourlyRate: newRate) != nil {
+            newName = ""
+        }
     }
 }
 
@@ -155,7 +147,7 @@ private struct ClientEditorRow: View {
             TextField("Billing address", text: field(\.billingAddress), axis: .vertical)
                 .lineLimit(2...4)
             Button("Archive") {
-                model.update { $0.archiveClient(id: client.id, at: Date()) }
+                model.archiveClient(id: client.id)
             }
         } label: {
             HStack {
@@ -173,11 +165,7 @@ private struct ClientEditorRow: View {
         Binding(
             get: { client[keyPath: path] },
             set: { [client, model] value in
-                MainActor.assumeIsolated {
-                    var copy = client
-                    copy[keyPath: path] = value
-                    model.update { $0.updateClient(copy) }
-                }
+                MainActor.assumeIsolated { model.editClient(id: client.id) { $0[keyPath: path] = value } }
             }
         )
     }
@@ -186,11 +174,7 @@ private struct ClientEditorRow: View {
         Binding(
             get: { client.hourlyRate.amount },
             set: { [client, model] value in
-                MainActor.assumeIsolated {
-                    var copy = client
-                    copy.hourlyRate.amount = value
-                    model.update { $0.updateClient(copy) }
-                }
+                MainActor.assumeIsolated { model.editClient(id: client.id) { $0.hourlyRate.amount = value } }
             }
         )
     }
@@ -199,11 +183,7 @@ private struct ClientEditorRow: View {
         Binding(
             get: { client.hourlyRate.currency },
             set: { [client, model] value in
-                MainActor.assumeIsolated {
-                    var copy = client
-                    copy.hourlyRate.currency = value.uppercased()
-                    model.update { $0.updateClient(copy) }
-                }
+                MainActor.assumeIsolated { model.editClient(id: client.id) { $0.hourlyRate.currency = value } }
             }
         )
     }

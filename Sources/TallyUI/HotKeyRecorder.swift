@@ -61,21 +61,18 @@ struct HotKeyRecorder: View {
     }
 
     private func handle(_ event: NSEvent) {
-        switch event.keyCode {
-        case 53: // Escape
+        switch HotKeyRecording.interpret(keyCode: UInt32(event.keyCode), modifiers: event.modifierFlags.hotKeyModifiers) {
+        case .cancel:
             stopRecording()
-        case 51, 117: // Delete, Forward Delete
+        case .clear:
             combo = nil
             stopRecording()
-        default:
-            let candidate = HotKeyCombo(keyCode: UInt32(event.keyCode), modifiers: event.modifierFlags.hotKeyModifiers)
-            if candidate.isValid {
-                combo = candidate
-                rejected = false
-                stopRecording()
-            } else {
-                rejected = true
-            }
+        case .record(let candidate):
+            combo = candidate
+            rejected = false
+            stopRecording()
+        case .reject:
+            rejected = true
         }
     }
 }

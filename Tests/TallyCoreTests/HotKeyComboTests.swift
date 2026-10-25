@@ -22,4 +22,14 @@ struct HotKeyComboTests {
     @Test func unknownKeysAreRejected() {
         #expect(!HotKeyCombo(keyCode: 200, modifiers: [.command]).isValid)
     }
+
+    @Test func recorderCancelsClearsRecordsAndRejects() {
+        #expect(HotKeyRecording.interpret(keyCode: 53, modifiers: [.command]) == .cancel)
+        #expect(HotKeyRecording.interpret(keyCode: 51, modifiers: []) == .clear)
+        #expect(HotKeyRecording.interpret(keyCode: 117, modifiers: []) == .clear)
+        #expect(HotKeyRecording.interpret(keyCode: 17, modifiers: [.shift]) == .reject)
+        #expect(HotKeyRecording.interpret(keyCode: 200, modifiers: [.command]) == .reject)
+        let combo = HotKeyCombo(keyCode: 49, modifiers: [.option, .command])
+        #expect(HotKeyRecording.interpret(keyCode: 49, modifiers: [.option, .command]) == .record(combo))
+    }
 }

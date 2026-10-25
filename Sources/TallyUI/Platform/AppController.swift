@@ -106,9 +106,7 @@ public final class AppController: ObservableObject {
             return
         }
         let registered = hotKey.register(combo) { [weak self] in self?.model.toggle() }
-        if !registered {
-            model.problem = "\(combo.displayString) is already in use. Pick another shortcut in Settings."
-        }
+        model.hotKeyRegistration(combo, succeeded: registered)
     }
 
     private func showAwayPrompt(_ away: AwayPeriod?) {

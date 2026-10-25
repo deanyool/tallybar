@@ -40,6 +40,18 @@ model.update { $0.addClient(name: "Lumen", hourlyRate: 120) }
 
 Views read from the model and hold no durable state of their own.
 
+What each window does lives on the model too, in `AppModel+Actions.swift`: adding and
+editing clients, saving and deleting entries, exporting CSV and saving invoices. The
+forms keep their input in small value types (`ExportDraft`, `InvoiceDraft`,
+`LaunchAtLoginState`), and the save panel is passed in as a function. A view's button
+calls one model method and shows the message it returns, so the tests in
+`Tests/TallyUITests/ActionTests.swift` run the same flows with a fake save panel:
+
+```swift
+var draft = model.newInvoiceDraft()
+let outcome = model.saveInvoice(&draft, choose: SavePanel.choose)
+```
+
 `Platform/` is the thin layer over macOS:
 
 | File | System API |
@@ -49,6 +61,7 @@ Views read from the model and hold no durable state of their own.
 | `LaunchAtLogin` | `SMAppService.mainApp` |
 | `WindowManager` | `NSWindow` hosting SwiftUI, opened on demand |
 | `AppController` | Timer, wake notifications, and the wiring between all of the above |
+| `SavePanel` | `NSSavePanel`, the real file chooser for exports and invoices |
 | `SelfCheck` | The `--self-check` report used by the smoke test |
 
 ## The tick

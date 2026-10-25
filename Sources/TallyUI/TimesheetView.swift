@@ -44,7 +44,9 @@ public struct TimesheetView: View {
             EntryEditor(model: model, entry: entry, isNew: false)
         }
         .sheet(isPresented: $isAdding) {
-            EntryEditor(model: model, entry: newEntry, isNew: true)
+            if let entry = model.newEntry(clientID: clientFilter) {
+                EntryEditor(model: model, entry: entry, isNew: true)
+            }
         }
     }
 
@@ -54,15 +56,6 @@ public struct TimesheetView: View {
 
     private var days: [TimesheetDay] {
         model.ledger.timesheet(in: interval, clientID: clientFilter, calendar: model.calendar)
-    }
-
-    private var newEntry: TimeEntry {
-        let end = model.now.wholeSecond
-        return TimeEntry(
-            clientID: clientFilter ?? model.ledger.activeClients.first?.id ?? UUID(),
-            start: end.addingTimeInterval(-3600),
-            end: end
-        )
     }
 
     private var toolbar: some View {
@@ -173,11 +166,7 @@ private struct TimesheetRowView: View {
     }
 
     private func delete() {
-        do {
-            try model.update { try $0.deleteEntry(id: row.entry.id) }
-        } catch {
-            showProblem = String(describing: error)
-        }
+        showProblem = model.deleteEntry(id: row.entry.id)
     }
 
     private var timeRange: String {

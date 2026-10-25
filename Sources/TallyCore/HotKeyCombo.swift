@@ -61,3 +61,29 @@ public struct HotKeyCombo: Hashable, Codable, Sendable {
         109: "F10", 111: "F12", 118: "F4", 120: "F2", 122: "F1"
     ]
 }
+
+/// What the shortcut recorder does with one key press. Escape cancels, Delete clears,
+/// anything else becomes the shortcut if it is usable.
+public enum HotKeyRecording: Equatable, Sendable {
+    case cancel
+    case clear
+    case record(HotKeyCombo)
+    /// The key needs Command, Control or Option, or it is not one a shortcut can use.
+    case reject
+
+    static let escape: UInt32 = 53
+    static let delete: UInt32 = 51
+    static let forwardDelete: UInt32 = 117
+
+    public static func interpret(keyCode: UInt32, modifiers: HotKeyCombo.Modifiers) -> HotKeyRecording {
+        switch keyCode {
+        case escape:
+            return .cancel
+        case delete, forwardDelete:
+            return .clear
+        default:
+            let candidate = HotKeyCombo(keyCode: keyCode, modifiers: modifiers)
+            return candidate.isValid ? .record(candidate) : .reject
+        }
+    }
+}

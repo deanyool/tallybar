@@ -1,6 +1,6 @@
 import Foundation
 
-public struct CSVOptions: Sendable {
+public struct CSVOptions: Equatable, Sendable {
     /// Writes one row per local day, so a session crossing midnight is two rows and
     /// a pivot table by date adds up to the same daily totals as the app.
     public var splitAtMidnight: Bool

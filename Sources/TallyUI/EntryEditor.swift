@@ -40,11 +40,9 @@ struct EntryEditor: View {
     }
 
     private func save() {
-        do {
-            try model.update { try $0.save(entry) }
+        problem = model.saveEntry(entry)
+        if problem == nil {
             dismiss()
-        } catch {
-            problem = String(describing: error)
         }
     }
 }

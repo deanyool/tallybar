@@ -70,7 +70,7 @@ public struct MenuPanel: View {
                 ForEach(model.ledger.activeClients) { client in
                     ClientRow(
                         client: client,
-                        rateText: "\(model.text(for: client.hourlyRate))/h",
+                        rateText: model.rateText(for: client),
                         todaySeconds: model.todaySeconds(clientID: client.id),
                         isRunning: model.ledger.running?.clientID == client.id,
                         toggle: { model.toggle(clientID: client.id) }
@@ -140,26 +140,15 @@ struct SummaryHeader: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                Text(todayLine)
+                Text(model.todayLine)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .monospacedDigit()
             }
             .accessibilityElement(children: .ignore)
-            .accessibilityLabel(accessibilitySummary)
+            .accessibilityLabel(model.summaryAccessibilityLabel)
             Spacer()
         }
-    }
-
-    private var todayLine: String {
-        let earned = model.text(for: model.todayEarnings)
-        let time = "Today \(DurationFormat.clock(model.todaySeconds))"
-        return earned.isEmpty ? time : "\(time) · \(earned)"
-    }
-
-    private var accessibilitySummary: String {
-        "\(DurationFormat.words(model.weekSeconds)) this week, "
-            + "\(DurationFormat.words(model.todaySeconds)) today"
     }
 }
 
