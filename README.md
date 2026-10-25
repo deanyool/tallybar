@@ -44,10 +44,36 @@ makes no network connections at all.
 | --- | --- |
 | ![Timesheet window with entries grouped by day](docs/images/timesheet.png) | ![Prompt reading: You were away 23m](docs/images/idle-prompt.png) |
 
-## Quick start
+## Install
 
-You need macOS 14 or later and a Swift 6 toolchain (Xcode 16 or the Command Line
-Tools). TallyBar is built from source and has no dependencies.
+### Download (Apple Silicon)
+
+1. Download `Tallybar-<version>.zip` from the
+   [Releases page](https://github.com/deanyool/tallybar/releases) and double-click it.
+2. Drag `TallyBar.app` to `/Applications`.
+3. Open it. Because the app is not notarized by Apple, macOS stops the first launch
+   with "Apple could not verify TallyBar is free of malware". Click **Done**.
+4. Open **System Settings > Privacy & Security**, scroll down to **Security**, and click
+   **Open Anyway** next to the TallyBar message. Confirm with your password or Touch ID,
+   then click **Open**. macOS remembers this, so later launches are normal.
+
+If you prefer the terminal, this removes the download flag instead of steps 3 and 4:
+
+```sh
+xattr -dr com.apple.quarantine /Applications/TallyBar.app
+```
+
+The download is built for Apple Silicon and needs macOS 14 or later. On an Intel Mac,
+build from source. Each release lists SHA-256 checksums in `SHA256SUMS`:
+
+```sh
+shasum -a 256 -c SHA256SUMS
+```
+
+### Build from source
+
+You need macOS 14 or later and a Swift 6 toolchain: Xcode 16 or later, or the Command
+Line Tools (`xcode-select --install`). There are no third-party dependencies.
 
 ```sh
 git clone https://github.com/deanyool/tallybar
@@ -56,11 +82,16 @@ scripts/build-app.sh
 open dist/TallyBar.app
 ```
 
+A Mac you build on trusts its own build, so there is no Gatekeeper step. Running the
+tests needs Xcode, see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Quick start
+
 A timer icon appears in your menu bar. There is no Dock icon. Open **Settings** from the
 panel, add a client on the **Clients** tab, then click the client to start tracking.
+Click it again to stop, or press Control-Option-Command-T from anywhere.
 
-Copy `dist/TallyBar.app` to `/Applications` to keep it, and turn on **Launch at login**
-in Settings.
+Turn on **Launch at login** in Settings to keep it running.
 
 To confirm a build is healthy without clicking anything:
 
@@ -74,7 +105,7 @@ $ scripts/smoke-test.sh dist/TallyBar.app
   "isAppBundle" : true,
   "launchAtLoginStatus" : "notFound",
   "ok" : true,
-  "version" : "1.3.0"
+  "version" : "1.4.0"
 }
 Smoke test passed
 ```
@@ -145,9 +176,9 @@ More detail:
 
 ## Limitations
 
-- **Build from source.** There is no notarized download. The bundle gets an ad-hoc
-  signature, which is enough on the Mac that built it. Copied to another Mac,
-  Gatekeeper will object.
+- **Not notarized.** The app has an ad-hoc signature only, so the first launch of a
+  download needs the **Open Anyway** step above.
+- **Apple Silicon download only.** Intel Macs can build from source.
 - **One Mac.** There is no sync. The ledger is a file, so you can move it yourself, but
   two Macs writing to it at once will overwrite each other.
 - **No team features.** One person, one ledger.
@@ -157,6 +188,23 @@ More detail:
   letter shown is the US key at that physical position.
 - **Display follows your current time zone.** Entries store instants, not the zone you
   worked in, so durations never change, but a trip abroad shifts how old days are grouped.
+
+## What is tested, and what is not
+
+All of the time math, money, invoices, CSV and storage, plus everything the panel and
+windows do (start, stop and switch clients, edit and delete entries, add and archive
+clients, the export and invoice flows, keep or discard away time, the Launch at Login
+switch), run in `swift test` against the real model with a stand-in save panel. The
+views are rendered in tests to check that they lay out.
+
+Some things only a person at the Mac can check, and are tested by hand before a release:
+
+- clicking in the menu bar panel and the windows themselves,
+- the system save panel (`NSSavePanel`),
+- pressing the global shortcut on a real keyboard (`--self-check` registers it and
+  sends a synthetic press through the same handler),
+- Launch at Login actually starting the app after you log in,
+- the away prompt after real sleep and wake.
 
 ## Contributing
 

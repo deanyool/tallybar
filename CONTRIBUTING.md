@@ -53,7 +53,7 @@ See [docs/architecture.md](docs/architecture.md) for how the pieces fit.
 
 ```sh
 swift test
-swiftlint lint
+swiftlint lint --strict
 scripts/build-app.sh && scripts/smoke-test.sh dist/TallyBar.app
 ```
 
