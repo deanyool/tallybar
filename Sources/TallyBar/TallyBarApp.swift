@@ -7,15 +7,37 @@ import TallyUI
 struct TallyBarEntry {
     @MainActor
     static func main() {
-        if CommandLine.arguments.contains("--self-check") {
+        // macOS adds -psn_... when the app is opened from Finder on some versions.
+        let arguments = CommandLine.arguments.dropFirst().filter { !$0.hasPrefix("-psn_") }
+        switch arguments.first {
+        case nil:
+            TallyBarApp.main()
+        case "--self-check":
             runSelfCheck()
-        }
-        if CommandLine.arguments.contains("--version") {
+        case "--version":
             print("TallyBar \(TallyVersion.current)")
-            return
+        case "--help", "-h":
+            print(usage)
+        case let other?:
+            FileHandle.standardError.write(Data("TallyBar: unknown option \(other)\n\n\(usage)\n".utf8))
+            exit(2)
         }
-        TallyBarApp.main()
     }
+
+    static let usage = """
+        TallyBar \(TallyVersion.current), a menu bar time tracker.
+
+        Usage: TallyBar [--self-check | --version | --help]
+
+        With no options it starts in the menu bar. Usually you open TallyBar.app instead.
+
+          --self-check   Check the hotkey, idle clock and login item, print a JSON report
+          --version      Print the version
+          --help         Show this help
+
+        TALLYBAR_DATA_DIR=<folder> keeps ledger.json there instead of
+        ~/Library/Application Support/TallyBar.
+        """
 
     @MainActor
     private static func runSelfCheck() -> Never {
