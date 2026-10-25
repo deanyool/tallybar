@@ -194,7 +194,8 @@ struct AppModelTests {
         let url = directory().appending(path: "export.csv")
         let interval = DateInterval(start: t0.addingTimeInterval(-86_400), end: t0.addingTimeInterval(86_400))
         try model.saveCSV(in: interval, clientID: nil, options: CSVOptions(), to: url)
-        #expect(try String(decoding: Data(contentsOf: url), as: UTF8.self).contains("Acme Test Co"))
+        let text = try #require(String(bytes: Data(contentsOf: url), encoding: .utf8))
+        #expect(text.contains("Acme Test Co"))
     }
 
     @Test func mixedCurrenciesReadAsASum() {

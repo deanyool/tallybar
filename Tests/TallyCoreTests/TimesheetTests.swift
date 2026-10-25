@@ -10,12 +10,16 @@ struct TimesheetTests {
         end: Fixtures.at("2025-11-01T00:00:00-04:00")
     )
 
+    private func entry(_ client: Client, _ start: String, _ end: String, note: String = "") -> TimeEntry {
+        TimeEntry(clientID: client.id, start: Fixtures.at(start), end: Fixtures.at(end), note: note)
+    }
+
     @Test func groupsNewestDayFirstAndOldestRowFirst() {
         var (ledger, client) = Fixtures.ledger()
         ledger.entries = [
-            TimeEntry(clientID: client.id, start: Fixtures.at("2025-10-15T14:00:00-04:00"), end: Fixtures.at("2025-10-15T15:00:00-04:00"), note: "second"),
-            TimeEntry(clientID: client.id, start: Fixtures.at("2025-10-15T09:00:00-04:00"), end: Fixtures.at("2025-10-15T10:00:00-04:00"), note: "first"),
-            TimeEntry(clientID: client.id, start: Fixtures.at("2025-10-16T09:00:00-04:00"), end: Fixtures.at("2025-10-16T10:00:00-04:00"), note: "next day")
+            entry(client, "2025-10-15T14:00:00-04:00", "2025-10-15T15:00:00-04:00", note: "second"),
+            entry(client, "2025-10-15T09:00:00-04:00", "2025-10-15T10:00:00-04:00", note: "first"),
+            entry(client, "2025-10-16T09:00:00-04:00", "2025-10-16T10:00:00-04:00", note: "next day")
         ]
         let days = ledger.timesheet(in: october, calendar: calendar)
         #expect(days.map { $0.rows.map(\.entry.note) } == [["next day"], ["first", "second"]])
@@ -25,7 +29,7 @@ struct TimesheetTests {
     @Test func midnightCrossingAppearsUnderBothDays() throws {
         var (ledger, client) = Fixtures.ledger()
         ledger.entries = [
-            TimeEntry(clientID: client.id, start: Fixtures.at("2025-10-15T23:00:00-04:00"), end: Fixtures.at("2025-10-16T00:30:00-04:00"))
+            entry(client, "2025-10-15T23:00:00-04:00", "2025-10-16T00:30:00-04:00")
         ]
         let days = ledger.timesheet(in: october, calendar: calendar)
         #expect(days.count == 2)
@@ -42,9 +46,9 @@ struct TimesheetTests {
         var (ledger, client) = Fixtures.ledger()
         let other = ledger.addClient(name: "Other", hourlyRate: 1)
         ledger.entries = [
-            TimeEntry(clientID: client.id, start: Fixtures.at("2025-10-15T09:00:00-04:00"), end: Fixtures.at("2025-10-15T10:00:00-04:00")),
-            TimeEntry(clientID: other.id, start: Fixtures.at("2025-10-15T11:00:00-04:00"), end: Fixtures.at("2025-10-15T12:00:00-04:00")),
-            TimeEntry(clientID: client.id, start: Fixtures.at("2025-09-15T09:00:00-04:00"), end: Fixtures.at("2025-09-15T10:00:00-04:00"))
+            entry(client, "2025-10-15T09:00:00-04:00", "2025-10-15T10:00:00-04:00"),
+            entry(other, "2025-10-15T11:00:00-04:00", "2025-10-15T12:00:00-04:00"),
+            entry(client, "2025-09-15T09:00:00-04:00", "2025-09-15T10:00:00-04:00")
         ]
         let days = ledger.timesheet(in: october, clientID: client.id, calendar: calendar)
         #expect(days.count == 1)

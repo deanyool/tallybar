@@ -36,7 +36,11 @@ struct HotKeyRecorder: View {
     }
 
     private func toggleRecording() {
-        isRecording ? stopRecording() : startRecording()
+        if isRecording {
+            stopRecording()
+        } else {
+            startRecording()
+        }
     }
 
     private func startRecording() {

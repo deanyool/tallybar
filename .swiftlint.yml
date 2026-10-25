@@ -34,4 +34,5 @@ opt_in_rules:
   - first_where
   - sorted_first_last
   - toggle_bool
+analyzer_rules:
   - unused_declaration
