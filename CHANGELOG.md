@@ -4,6 +4,25 @@ All notable changes to TallyBar are listed here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and versions follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-10-27
+
+### Added
+
+- A download for Apple Silicon, ad-hoc signed, with first-launch steps in the README.
+- `TallyBar --help`. Unknown options now print the usage and exit instead of starting.
+- The invoice form says what is missing: a number, a client, a date range that runs
+  backwards or a negative tax rate.
+- Launch at Login explains when macOS is waiting for approval in System Settings.
+- SECURITY.md, issue and pull request templates.
+
+### Changed
+
+- Everything the panel and windows do now lives on the app model and is covered by
+  tests: clients, entries, CSV export, invoices, away time and Launch at Login.
+- Negative hourly rates are refused. Currency codes are stored upper case.
+- Invoice file names replace slashes and colons from the invoice number.
+- CI pins Xcode 16.4 and lints with `--strict`.
+
 ## [1.3.0] - 2026-10-17
 
 ### Added
